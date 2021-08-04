@@ -46,6 +46,7 @@ class CMS extends HTMLElement {
                 label.innerText = element + ":"
                 const select = document.createElement('select');
                 select.name = element.replace(/ /g, "");
+                select.id = element.replace(/ /g, "");
                 const male = document.createElement('option');
                 male.value = "Male";
                 male.innerText = "Male";
@@ -61,7 +62,9 @@ class CMS extends HTMLElement {
                 label.for = element.replace(/ /g, "");
                 label.innerText = element + ":";
                 const input = document.createElement('input');
+                input.required = true;
                 input.type = 'date';
+                input.id = element.replace(/ /g, "");
                 form.append(label, input);
                 return;
             }
@@ -74,19 +77,35 @@ class CMS extends HTMLElement {
             label.for = element.replace(/ /g, "");
             label.innerText = element + ":";
             const input = document.createElement('input');
+            input.id = element.replace(/ /g, "");
+            input.required = true;
             input.type = "text";
             form.append(label, input);
         });
         const submit = document.createElement('input');
         submit.type = "submit";
-        submit.onclick = () => this.saveDataOnClickSubmit();
-        form.onsubmit = () => { return false };
+        form.onsubmit = (event) => this.saveDataOnClickSubmit(event);
         form.append(submit);
         return form;
     }
 
     saveDataOnClickSubmit() {
+        event.preventDefault();
         console.log("Handling Data Saving");
+        this.tableHeader.forEach(element => {
+            switch (element) {
+                case "Profile Image":
+                    {
+                        return;
+                        break;
+                    }
+                default:
+                    {
+                        console.log(this.form.querySelector(`#${element.replace(/ /g,"")}`).value);
+                        break;
+                    }
+            }
+        });
     }
 }
 
