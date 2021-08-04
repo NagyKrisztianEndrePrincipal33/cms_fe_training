@@ -26,12 +26,17 @@ class CMS extends HTMLElement {
 
     render() {
         console.log("Rendering the CMS!");
+        this.form = this.createFormSection(this.tableHeader);
+        this.append(this.form);
         this.table = document.createElement("table");
         this.table.classList.add("styled-table");
         this.table.append(this.createTableHeader(this.tableHeader));
+        let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
+        dataFromDataBase = JSON.parse(dataFromDataBase);
+        dataFromDataBase.forEach(element => {
+            this.table.append(this.createTableRow(this.tableHeader, element));
+        });
         this.append(this.table);
-        this.form = this.createFormSection(this.tableHeader);
-        this.append(this.form);
     }
 
     createTableHeader(headerNames) {
@@ -43,6 +48,17 @@ class CMS extends HTMLElement {
             tableHeader.innerText = element;
             tableRow.append(tableHeader);
         });
+        return tableRow;
+    }
+
+    createTableRow(headerNames, data) {
+        const tableRow = document.createElement('tr');
+        tableRow.classList.add('table-body-row');
+        for (let x in data) {
+            const tableCell = document.createElement('td');
+            tableCell.innerText = data[x];
+            tableRow.append(tableCell);
+        }
         return tableRow;
     }
 
@@ -127,6 +143,7 @@ class CMS extends HTMLElement {
         }
         dataFromDataBase.push(newEmployee);
         this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
+        this.form.reset();
     }
 
     _getLastId(dataFromDataBase) {
