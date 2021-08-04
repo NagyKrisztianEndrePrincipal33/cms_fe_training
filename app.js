@@ -4,6 +4,7 @@ class CMS extends HTMLElement {
         this.table = null;
         this.form = null;
         this.tableHeader = [
+            "Id",
             "Firstname",
             "Lastname",
             "Email",
@@ -25,7 +26,6 @@ class CMS extends HTMLElement {
     }
 
     render() {
-        // this.myStorage.setItem(this.dataBaseKey, null);
         console.log("Rendering the CMS!");
         this.form = this.createFormSection(this.tableHeader);
         this.append(this.form);
@@ -51,6 +51,7 @@ class CMS extends HTMLElement {
             const tableHeader = document.createElement("th");
             tableHeader.classList.add("table-cell");
             tableHeader.innerText = element;
+            tableHeader.classList.add('tabble-cell');
             tableRow.append(tableHeader);
         });
         return tableRow;
@@ -62,6 +63,7 @@ class CMS extends HTMLElement {
         for (let x in data) {
             const tableCell = document.createElement("td");
             tableCell.innerText = data[x];
+            tableCell.classList.add('tabble-cell');
             tableRow.append(tableCell);
         }
         return tableRow;
@@ -101,8 +103,24 @@ class CMS extends HTMLElement {
                         form.append(label, input);
                         break;
                     }
+                case "Id":
+                    {
+                        break;
+                    }
                 case "Profile Image":
                     {
+                        break;
+                    }
+                case "Email":
+                    {
+                        const label = document.createElement("label");
+                        label.for = element.replace(/ /g, "");
+                        label.innerText = element + ":";
+                        const input = document.createElement("input");
+                        input.id = element.replace(/ /g, "");
+                        input.required = true;
+                        input.type = "email";
+                        form.append(label, input);
                         break;
                     }
                 default:
@@ -136,7 +154,10 @@ class CMS extends HTMLElement {
             switch (element) {
                 case "Profile Image":
                     {
-                        return;
+                        break;
+                    }
+                case "Id":
+                    {
                         break;
                     }
                 default:
