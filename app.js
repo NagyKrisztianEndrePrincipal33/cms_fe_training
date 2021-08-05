@@ -14,6 +14,7 @@ class CMS extends HTMLElement {
         ];
         this.myStorage = window.localStorage;
         this.dataBaseKey = "Employees";
+        this.imageDatabaseKey = "Images";
     }
 
     connectedCallback() {
@@ -133,6 +134,20 @@ class CMS extends HTMLElement {
                     }
                 case "Profile Image":
                     {
+                        const elementId = element.replace(/ /g, "");
+                        const div = document.createElement('div');
+                        div.classList.add('form-row');
+                        const label = document.createElement("label");
+                        label.for = elementId;
+                        label.innerText = element + ":";
+                        const input = document.createElement("input");
+                        input.id = elementId;
+                        input.name = elementId;
+                        input.accept = "image/png, image/jpeg";
+                        input.required = true;
+                        input.type = "file";
+                        div.append(label, input);
+                        form.append(div);
                         break;
                     }
                 case "Email":
@@ -184,12 +199,30 @@ class CMS extends HTMLElement {
         let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
         dataFromDataBase = JSON.parse(dataFromDataBase);
         let newEmployee = {};
-        newEmployee["id"] = this._getLastId(dataFromDataBase) + 1;
+        let employeeId = this._getLastId(dataFromDataBase) + 1;
+        newEmployee["id"] = employeeId;
         this.tableHeader.forEach((element) => {
             switch (element) {
                 case "Profile Image":
                     {
                         newEmployee[element.replace(/ /g, "")] = null;
+                        let imageFile = this.form.querySelector(
+                            `#${element.replace(/ /g, "")}`
+                        ).files[0];
+
+                        _turnImageToBase64(imageFile).then(data => {
+                            let imageStorage = this.myStorage.getItem(this.imageDatabaseKey);
+                            imageStorage = JSON.parse(imageStorage);
+                            if (!imageStorage) {
+                                imageStorage = [];
+                            }
+                            let userImage = {};
+                            userImage.id = employeeId;
+                            userImage.image = data;
+                            imageStorage.push(userImage);
+                            this.myStorage.setItem(this.imageDatabaseKey, JSON.stringify(imageStorage));
+
+                        });
                         break;
                     }
                 case "Id":
@@ -239,6 +272,18 @@ class CMS extends HTMLElement {
         });
         this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
     }
+}
+
+function _turnImageToBase64(element) {
+    return new Promise((resolve, reject) => {
+        let file = element;
+        let reader = new FileReader();
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 window.customElements.define("cms-component", CMS);
