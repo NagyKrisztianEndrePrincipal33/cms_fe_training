@@ -129,6 +129,10 @@ body {
     padding-left: 5px;
 }
 
+.input-type-file {
+    background-color: white;
+}
+
 @media only screen and (max-width: 700px) {
     .styled-form {
         width: 100%;

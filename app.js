@@ -187,6 +187,7 @@ class CMS extends HTMLElement {
                         input.name = elementId;
                         input.accept = "image/png, image/jpeg";
                         input.required = true;
+                        input.classList.add('input-type-file');
                         input.type = "file";
                         div.append(label, input);
                         form.append(div);
