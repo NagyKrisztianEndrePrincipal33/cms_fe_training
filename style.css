@@ -1,3 +1,7 @@
+body {
+    margin: 0;
+}
+
 .styled-table {
     border-collapse: collapse;
     margin: 25px 0;
@@ -7,6 +11,7 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     width: 100%;
     table-layout: fixed;
+    margin: 10px auto;
 }
 
 .styled-table .table-header-row {
@@ -34,34 +39,48 @@
 
 .styled-form {
     display: flex;
-    width: auto;
+    width: 50%;
     height: auto;
-    /* flex-direction: column; */
+    flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
     background-color: #009879;
     padding: 15px;
     border-radius: 25px;
     box-sizing: border-box;
-    flex-wrap: wrap;
+    margin: 10px auto;
 }
 
-.styled-form input,
-.styled-form select {
+.styled-form .form-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.styled-form .form-row input,
+.styled-form .form-row select {
     padding: 10px;
     border-radius: 25px;
     border: none;
     margin: 5px 0;
     transition: background-color 1s;
     box-sizing: border-box;
+    width: 100%;
 }
 
-.styled-form label {
+.styled-form .form-row input[type="submit"] {
+    flex: 1;
+}
+
+.styled-form .form-row label {
     color: white;
+    padding: 0 10px;
 }
 
-.styled-form input:focus,
-.styled-form select:focus {
+.styled-form .form-row input:focus,
+.styled-form .form-row select:focus {
     outline: none;
     box-shadow: 0 2px 0 0 rgba(0, 0, 255, 0.25);
     /* Border bottom */
@@ -75,7 +94,20 @@
     /* All the borders by using the spread properties */
 }
 
-.styled-form input:hover,
-.styled-form select:hover {
+.styled-form .form-row input:hover,
+.styled-form .form-row select:hover {
     background-color: turquoise;
+}
+
+.styled-form .form-row h1 {
+    color: white;
+    padding: 0 10px;
+    font-family: sans-serif;
+    margin: 5px 0;
+}
+
+@media only screen and (max-width: 700px) {
+    .styled-form {
+        width: 100%;
+    }
 }

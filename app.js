@@ -73,10 +73,19 @@ class CMS extends HTMLElement {
     createFormSection(headerNames) {
         const form = document.createElement("form");
         form.classList.add("styled-form");
+        const headerDiv = document.createElement('div');
+        headerDiv.classList.add('form-row');
+
+        const h1 = document.createElement('h1');
+        h1.innerText = "Add a new employee to the list:";
+        headerDiv.append(h1);
+        form.append(headerDiv);
         headerNames.forEach((element) => {
             switch (element) {
                 case "Sex":
                     {
+                        const div = document.createElement('div');
+                        div.classList.add('form-row');
                         const label = document.createElement("label");
                         label.for = element.replace(/ /g, "");
                         label.innerText = element + ":";
@@ -90,11 +99,14 @@ class CMS extends HTMLElement {
                         female.value = "Female";
                         female.innerText = "Female";
                         select.append(male, female);
-                        form.append(label, select);
+                        div.append(label, select);
+                        form.append(div);
                         break;
                     }
                 case "Date of birth":
                     {
+                        const div = document.createElement('div');
+                        div.classList.add('form-row');
                         const label = document.createElement("label");
                         label.for = element.replace(/ /g, "");
                         label.innerText = element + ":";
@@ -102,7 +114,8 @@ class CMS extends HTMLElement {
                         input.required = true;
                         input.type = "date";
                         input.id = element.replace(/ /g, "");
-                        form.append(label, input);
+                        div.append(label, input);
+                        form.append(div);
                         break;
                     }
                 case "Id":
@@ -115,6 +128,8 @@ class CMS extends HTMLElement {
                     }
                 case "Email":
                     {
+                        const div = document.createElement('div');
+                        div.classList.add('form-row');
                         const label = document.createElement("label");
                         label.for = element.replace(/ /g, "");
                         label.innerText = element + ":";
@@ -122,11 +137,15 @@ class CMS extends HTMLElement {
                         input.id = element.replace(/ /g, "");
                         input.required = true;
                         input.type = "email";
-                        form.append(label, input);
+                        input.placeholder = element;
+                        div.append(label, input);
+                        form.append(div);
                         break;
                     }
                 default:
                     {
+                        const div = document.createElement('div');
+                        div.classList.add('form-row');
                         const label = document.createElement("label");
                         label.for = element.replace(/ /g, "");
                         label.innerText = element + ":";
@@ -134,14 +153,19 @@ class CMS extends HTMLElement {
                         input.id = element.replace(/ /g, "");
                         input.required = true;
                         input.type = "text";
-                        form.append(label, input);
+                        input.placeholder = element;
+                        div.append(label, input);
+                        form.append(div);
                     }
             }
         });
+        const div = document.createElement('div');
+        div.classList.add('form-row');
         const submit = document.createElement("input");
         submit.type = "submit";
         form.onsubmit = (event) => this.saveDataOnClickSubmit(event);
-        form.append(submit);
+        div.append(submit);
+        form.append(div);
         return form;
     }
 
