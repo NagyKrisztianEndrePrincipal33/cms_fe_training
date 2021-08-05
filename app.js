@@ -73,7 +73,10 @@ class CMS extends HTMLElement {
         const deleteCell = document.createElement("td");
         deleteCell.classList.add('table-cell');
         const deleteButton = document.createElement('button');
-        deleteButton.onclick = () => this._deleteEmployee(data.id);
+        deleteButton.onclick = () => {
+            this._deleteEmployee(data.id);
+            this._deleteEmployeeImage(data.id);
+        };
         deleteButton.innerText = "X";
         deleteCell.append(deleteButton);
         tableRow.append(deleteCell);
@@ -271,6 +274,15 @@ class CMS extends HTMLElement {
             return obj.id !== id;
         });
         this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
+    }
+
+    _deleteEmployeeImage(id) {
+        let imagesFromDataBase = this.myStorage.getItem(this.imageDatabaseKey);
+        imagesFromDataBase = JSON.parse(imagesFromDataBase);
+        imagesFromDataBase = imagesFromDataBase.filter(function(obj) {
+            return obj.id !== id;
+        });
+        this.myStorage.setItem(this.imageDatabaseKey, JSON.stringify(imagesFromDataBase));
     }
 }
 
