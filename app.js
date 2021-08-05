@@ -65,6 +65,25 @@ class CMS extends HTMLElement {
         const tableRow = document.createElement("tr");
         tableRow.classList.add("table-body-row");
         for (let x in data) {
+            if (x === 'ProfileImage') {
+                let image = this._getImage(data.id);
+                if (image) {
+                    const tableCell = document.createElement('td');
+                    tableCell.classList.add('tabble-cell');
+                    const imageContainer = document.createElement('div');
+                    imageContainer.classList.add('profile-image-cell');
+                    imageContainer.style = `background-image : url(${image})`;
+                    tableCell.append(imageContainer);
+                    tableRow.append(tableCell);
+                } else {
+                    const tableCell = document.createElement('td');
+                    tableCell.classList.add('tabble-cell');
+                    tableCell.innerText = "No Image Here";
+                    tableRow.append(tableCell);
+                }
+
+                continue;
+            }
             const tableCell = document.createElement("td");
             tableCell.innerText = data[x];
             tableCell.classList.add('tabble-cell');
@@ -283,6 +302,21 @@ class CMS extends HTMLElement {
             return obj.id !== id;
         });
         this.myStorage.setItem(this.imageDatabaseKey, JSON.stringify(imagesFromDataBase));
+    }
+
+    _getImage(id) {
+        let imageFromDatabase = this.myStorage.getItem(this.imageDatabaseKey);
+        imageFromDatabase = JSON.parse(imageFromDatabase);
+        let indexOfNeeded = imageFromDatabase.findIndex((element) => {
+            if (element.id === id) {
+                return true;
+            }
+        });
+        if (indexOfNeeded === -1) {
+            return null;
+        } else {
+            return imageFromDatabase[indexOfNeeded].image;
+        }
     }
 }
 

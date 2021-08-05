@@ -106,6 +106,14 @@ body {
     margin: 5px 0;
 }
 
+.profile-image-cell {
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 100px;
+    width: 20px;
+    height: 20px;
+}
+
 @media only screen and (max-width: 700px) {
     .styled-form {
         width: 100%;
