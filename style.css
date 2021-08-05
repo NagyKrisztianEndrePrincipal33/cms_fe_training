@@ -23,6 +23,8 @@ body {
 .tabble-cell {
     padding: 12px 15px;
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .tabble-cell p {
@@ -117,6 +119,7 @@ body {
     width: 25px;
     float: left;
     height: 25px;
+    min-width: 25px;
 }
 
 .table-cell-with-image-and-paragraph {
@@ -131,6 +134,20 @@ body {
 
 .input-type-file {
     background-color: white;
+}
+
+.tooltip {
+    position: absolute;
+    visibility: visible;
+    background-color: white;
+    padding: 5px;
+    border-radius: 25px;
+    font-size: 1.5em;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hide {
+    visibility: collapse;
 }
 
 @media only screen and (max-width: 700px) {

@@ -15,6 +15,7 @@ class CMS extends HTMLElement {
         this.myStorage = window.localStorage;
         this.dataBaseKey = "Employees";
         this.imageDatabaseKey = "Images";
+        this.tooltip = null;
     }
 
     connectedCallback() {
@@ -42,7 +43,16 @@ class CMS extends HTMLElement {
                 this.table.append(this.createTableRow(element));
             });
         }
+        this.tooltip = this.createToolTip();
         this.append(this.table);
+        this.append(this.tooltip);
+    }
+
+    createToolTip() {
+        const tooltip = document.createElement('div');
+        tooltip.classList.add('tooltip');
+        tooltip.classList.toggle('hide');
+        return tooltip;
     }
 
     createTableHeader(headerNames) {
@@ -75,6 +85,7 @@ class CMS extends HTMLElement {
                     imageContainer.style = `background-image : url(${image})`;
                     tableCell.append(imageContainer);
                     tableRow.append(tableCell);
+
                 } else {
                     const tableCell = document.createElement('td');
                     tableCell.classList.add('tabble-cell');
@@ -107,6 +118,11 @@ class CMS extends HTMLElement {
             const tableCell = document.createElement("td");
             tableCell.innerText = data[x];
             tableCell.classList.add('tabble-cell');
+            tableCell.onmouseover = (event) => { this._onMouseOverHover(event) };
+            tableCell.onmouseout = (event) => {
+                this._onMouseOutHover(event);
+            }
+            tableCell.onmouseenter = (event) => { this._onMouseInHover(event); };
             tableRow.append(tableCell);
         }
         const deleteCell = document.createElement("td");
@@ -338,6 +354,24 @@ class CMS extends HTMLElement {
         } else {
             return imageFromDatabase[indexOfNeeded].image;
         }
+    }
+
+    _onMouseInHover(event) {
+        this.tooltip.classList.remove('hide');
+        const item = event.target;
+        const copy = item.cloneNode(true);
+        this.tooltip.append(copy);
+    }
+
+    _onMouseOverHover(event) {
+        this.tooltip.style.left = event.pageX + 'px';
+        this.tooltip.style.top = event.pageY + 'px';
+    }
+
+    _onMouseOutHover(event) {
+        this.tooltip.classList.add('hide');
+        this.tooltip.innerHTML = `
+            `;
     }
 }
 
