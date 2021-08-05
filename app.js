@@ -10,7 +10,7 @@ class CMS extends HTMLElement {
             "Email",
             "Sex",
             "Date of birth",
-            "Profile Image",
+            "Profile Image"
         ];
         this.myStorage = window.localStorage;
         this.dataBaseKey = "Employees";
@@ -49,11 +49,14 @@ class CMS extends HTMLElement {
         tableRow.classList.add("table-header-row");
         headerNames.forEach((element) => {
             const tableHeader = document.createElement("th");
-            tableHeader.classList.add("table-cell");
             tableHeader.innerText = element;
             tableHeader.classList.add('tabble-cell');
             tableRow.append(tableHeader);
         });
+        const tableHeader = document.createElement('th');
+        tableHeader.classList.add('table-cell');
+        tableHeader.innerText = "Delete Employee"
+        tableRow.append(tableHeader);
         return tableRow;
     }
 
@@ -65,8 +68,14 @@ class CMS extends HTMLElement {
             tableCell.innerText = data[x];
             tableCell.classList.add('tabble-cell');
             tableRow.append(tableCell);
-            console.log(x);
         }
+        const deleteCell = document.createElement("td");
+        deleteCell.classList.add('table-cell');
+        const deleteButton = document.createElement('button');
+        deleteButton.onclick = () => this._deleteEmployee(data.id);
+        deleteButton.innerText = "X";
+        deleteCell.append(deleteButton);
+        tableRow.append(deleteCell);
         return tableRow;
     }
 
@@ -213,6 +222,22 @@ class CMS extends HTMLElement {
             return 0;
         }
         return dataFromDataBase[dataFromDataBase.length - 1].id;
+    }
+
+    _deleteEmployee(id) {
+        console.log("Delete employee with id: " + id);
+        let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
+        dataFromDataBase = JSON.parse(dataFromDataBase);
+        let indexOfDeleted = dataFromDataBase.findIndex((element) => {
+            if (element.id === id) {
+                return true;
+            }
+        });
+        this.table.removeChild(this.table.childNodes[indexOfDeleted + 1]);
+        dataFromDataBase = dataFromDataBase.filter(function(obj) {
+            return obj.id !== id;
+        });
+        this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
     }
 }
 
