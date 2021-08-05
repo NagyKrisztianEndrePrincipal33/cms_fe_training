@@ -25,6 +25,10 @@ body {
     overflow: hidden;
 }
 
+.tabble-cell p {
+    display: inline;
+}
+
 .table-body-row {
     border-bottom: 2px solid #dddddd;
 }
@@ -110,8 +114,19 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     border-radius: 100px;
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    float: left;
+    height: 25px;
+}
+
+.table-cell-with-image-and-paragraph {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.table-cell-with-image-and-paragraph p {
+    padding-left: 5px;
 }
 
 @media only screen and (max-width: 700px) {

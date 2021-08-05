@@ -84,6 +84,26 @@ class CMS extends HTMLElement {
 
                 continue;
             }
+            if (x === 'Firstname') {
+                const tableCell = document.createElement("td");
+                let image = this._getImage(data.id);
+                if (image) {
+
+                    const p = document.createElement('p');
+                    p.innerText = data[x];
+                    const imageContainer = document.createElement('div');
+                    imageContainer.classList.add('profile-image-cell');
+                    imageContainer.style = `background-image : url(${image})`;
+                    tableCell.append(imageContainer, p);
+                    tableCell.classList.add('table-cell-with-image-and-paragraph');
+
+                } else {
+                    tableCell.innerText = data[x];
+                }
+                tableCell.classList.add('tabble-cell');
+                tableRow.append(tableCell);
+                continue;
+            }
             const tableCell = document.createElement("td");
             tableCell.innerText = data[x];
             tableCell.classList.add('tabble-cell');
