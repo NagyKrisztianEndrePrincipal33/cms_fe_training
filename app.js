@@ -181,6 +181,7 @@ class CMS extends HTMLElement {
                         const input = document.createElement("input");
                         input.required = true;
                         input.type = "date";
+                        input.max = "2018-01-01";
                         input.id = element.replace(/ /g, "");
                         div.append(label, input);
                         form.append(div);
@@ -220,6 +221,7 @@ class CMS extends HTMLElement {
                         input.id = element.replace(/ /g, "");
                         input.required = true;
                         input.type = "email";
+                        // input.pattern = "/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/";
                         input.placeholder = element;
                         div.append(label, input);
                         form.append(div);
