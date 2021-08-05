@@ -118,7 +118,7 @@ class CMS extends HTMLElement {
             const tableCell = document.createElement("td");
             tableCell.innerText = data[x];
             tableCell.classList.add('tabble-cell');
-            tableCell.onmouseover = (event) => { this._onMouseOverHover(event) };
+            tableCell.onmousemove = (event) => { this._onMouseOverHover(event) };
             tableCell.onmouseout = (event) => {
                 this._onMouseOutHover(event);
             }
