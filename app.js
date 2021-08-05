@@ -65,12 +65,14 @@ class CMS extends HTMLElement {
             tableCell.innerText = data[x];
             tableCell.classList.add('tabble-cell');
             tableRow.append(tableCell);
+            console.log(x);
         }
         return tableRow;
     }
 
     createFormSection(headerNames) {
         const form = document.createElement("form");
+        form.classList.add("styled-form");
         headerNames.forEach((element) => {
             switch (element) {
                 case "Sex":
@@ -154,6 +156,7 @@ class CMS extends HTMLElement {
             switch (element) {
                 case "Profile Image":
                     {
+                        newEmployee[element.replace(/ /g, "")] = null;
                         break;
                     }
                 case "Id":

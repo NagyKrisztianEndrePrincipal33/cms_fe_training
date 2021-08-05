@@ -31,3 +31,51 @@
 .table-body-row:last-of-type {
     border-bottom: 2px solid #009879;
 }
+
+.styled-form {
+    display: flex;
+    width: auto;
+    height: auto;
+    /* flex-direction: column; */
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #009879;
+    padding: 15px;
+    border-radius: 25px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+}
+
+.styled-form input,
+.styled-form select {
+    padding: 10px;
+    border-radius: 25px;
+    border: none;
+    margin: 5px 0;
+    transition: background-color 1s;
+    box-sizing: border-box;
+}
+
+.styled-form label {
+    color: white;
+}
+
+.styled-form input:focus,
+.styled-form select:focus {
+    outline: none;
+    box-shadow: 0 2px 0 0 rgba(0, 0, 255, 0.25);
+    /* Border bottom */
+    box-shadow: 0 -2px 0 0 rgba(0, 0, 255, 0.25);
+    /* Border top */
+    box-shadow: -2px 0 0 0 rgba(0, 0, 255, 0.25);
+    /* Border left */
+    box-shadow: 2px 0 0 0 rgba(0, 0, 255, 0.25);
+    /* Border right */
+    box-shadow: 0 0 0 2px rgba(0, 0, 255, 0.25);
+    /* All the borders by using the spread properties */
+}
+
+.styled-form input:hover,
+.styled-form select:hover {
+    background-color: turquoise;
+}
