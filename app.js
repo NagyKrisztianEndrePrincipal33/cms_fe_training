@@ -95,6 +95,19 @@ class CMS extends HTMLElement {
 
                 continue;
             }
+            if (x === 'Dateofbirth') {
+                const tableCell = document.createElement("td");
+                moment.locale('ro');
+                tableCell.innerText = moment(data[x]).format('LL');
+                tableCell.classList.add('tabble-cell');
+                tableCell.onmousemove = (event) => { this._onMouseOverHover(event) };
+                tableCell.onmouseout = (event) => {
+                    this._onMouseOutHover(event);
+                }
+                tableCell.onmouseenter = (event) => { this._onMouseInHover(event); };
+                tableRow.append(tableCell);
+                continue;
+            }
             if (x === 'Firstname') {
                 const tableCell = document.createElement("td");
                 let image = this._getImage(data.id);
