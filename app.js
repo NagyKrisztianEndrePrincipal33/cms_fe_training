@@ -279,29 +279,11 @@ class CMS extends HTMLElement {
             switch (element) {
                 case "Profile Image":
                     {
-                        newEmployee[element.replace(/ /g, "")] = null;
-                        let imageFile = this.form.querySelector(
-                            `#${element.replace(/ /g, "")}`
-                        ).files[0];
-
-                        _turnImageToBase64(imageFile).then(data => {
-                            let imageStorage = this.myStorage.getItem(this.imageDatabaseKey);
-                            imageStorage = JSON.parse(imageStorage);
-                            if (!imageStorage) {
-                                imageStorage = [];
-                            }
-                            let userImage = {};
-                            userImage.id = employeeId;
-                            userImage.image = data;
-                            imageStorage.push(userImage);
-                            this.myStorage.setItem(this.imageDatabaseKey, JSON.stringify(imageStorage));
-
-                        });
-                        break;
+                        return;
                     }
                 case "Id":
                     {
-                        break;
+                        return;
                     }
                 default:
                     {
@@ -313,15 +295,35 @@ class CMS extends HTMLElement {
                     }
             }
         });
-        if (!dataFromDataBase) {
-            dataFromDataBase = [];
-        }
-        dataFromDataBase.push(newEmployee);
-        this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
-        this.form.reset();
-        this.table.append(
-            this.createTableRow(dataFromDataBase[dataFromDataBase.length - 1])
-        );
+        let imageCase = "Profile Image";
+        imageCase = imageCase.replace(/ /g, "");
+        newEmployee[imageCase] = null;
+        let imageFile = this.form.querySelector(
+            `#${imageCase}`
+        ).files[0];
+
+        _turnImageToBase64(imageFile).then(data => {
+            let imageStorage = this.myStorage.getItem(this.imageDatabaseKey);
+            imageStorage = JSON.parse(imageStorage);
+            if (!imageStorage) {
+                imageStorage = [];
+            }
+            let userImage = {};
+            userImage.id = employeeId;
+            userImage.image = data;
+            imageStorage.push(userImage);
+            this.myStorage.setItem(this.imageDatabaseKey, JSON.stringify(imageStorage));
+            if (!dataFromDataBase) {
+                dataFromDataBase = [];
+            }
+            dataFromDataBase.push(newEmployee);
+            this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
+            this.form.reset();
+            this.table.append(
+                this.createTableRow(dataFromDataBase[dataFromDataBase.length - 1])
+            );
+        });
+
     }
 
     _getLastId(dataFromDataBase) {
