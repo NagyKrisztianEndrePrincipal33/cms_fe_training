@@ -6,10 +6,9 @@ body {
     border-collapse: collapse;
     font-size: 0.9em;
     font-family: sans-serif;
-    min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    width: 100%;
     table-layout: fixed;
+    width: 100%;
 }
 
 .styled-table .table-header-row {
@@ -20,6 +19,10 @@ body {
 
 .tabble-cell {
     padding: 12px 15px;
+    width: auto;
+    min-width: 50px;
+    max-width: 300px;
+    box-sizing: border-box;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -189,5 +192,18 @@ cms-component .styled-form {
     }
     .table-container {
         height: 700px;
+    }
+}
+
+@media only screen and (max-width: 700px) {
+    .styled-table {
+        table-layout: auto;
+        width: 700px;
+    }
+    .styled-table .tabble-cell {
+        word-wrap: break-word;
+        white-space: inherit;
+        word-wrap: break-word;
+        max-width: calc((100vw - 20px) / 8);
     }
 }
