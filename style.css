@@ -4,14 +4,12 @@ body {
 
 .styled-table {
     border-collapse: collapse;
-    margin: 25px 0;
     font-size: 0.9em;
     font-family: sans-serif;
     min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     width: 100%;
     table-layout: fixed;
-    margin: 10px auto;
 }
 
 .styled-table .table-header-row {
@@ -45,8 +43,8 @@ body {
 
 .styled-form {
     display: flex;
-    width: 50%;
-    height: auto;
+    width: 100%;
+    height: 100%;
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
@@ -54,7 +52,6 @@ body {
     padding: 15px;
     border-radius: 25px;
     box-sizing: border-box;
-    margin: 10px auto;
 }
 
 .styled-form .form-row {
@@ -150,8 +147,47 @@ body {
     visibility: collapse;
 }
 
-@media only screen and (max-width: 700px) {
-    .styled-form {
-        width: 100%;
+cms-component {
+    display: grid;
+    margin: 10px;
+    gap: 10px;
+    row-gap: 10px;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: calc(100vh - 20px);
+    box-sizing: border-box;
+}
+
+cms-component .styled-form {
+    align-self: stretch;
+}
+
+.table-container {
+    height: 100%;
+    overflow-y: auto;
+    align-self: flex-start;
+    border-radius: 25px;
+    box-sizing: border-box;
+    padding-bottom: 10px;
+}
+
+.table-container table .table-header-row {
+    position: sticky;
+    top: 0;
+}
+
+.table-container table {
+    border-collapse: collapse;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media only screen and (max-width: 1000px) {
+    cms-component {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+    }
+    .table-container {
+        height: 700px;
     }
 }

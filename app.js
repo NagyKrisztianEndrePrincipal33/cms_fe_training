@@ -44,7 +44,10 @@ class CMS extends HTMLElement {
             });
         }
         this.tooltip = this.createToolTip();
-        this.append(this.table);
+        const tableContainer = document.createElement('div');
+        tableContainer.classList.add('table-container');
+        tableContainer.append(this.table);
+        this.append(tableContainer);
         this.append(this.tooltip);
     }
 
