@@ -241,6 +241,7 @@ cms-component .styled-form {
     height: auto;
     padding: 10px;
     font-size: 1.2rem;
+    box-sizing: border-box;
     font-weight: bold;
     background-color: #f3f3f3;
 }
