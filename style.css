@@ -44,12 +44,12 @@ body {
     -webkit-transform: rotate(90deg);
 }
 
-.table-header-cell {
+.clickable {
     transition: all 2s;
     cursor: pointer;
 }
 
-.table-header-cell:hover {
+.clickable:hover {
     text-decoration: underline;
 }
 

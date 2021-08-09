@@ -118,10 +118,12 @@ class CMS extends HTMLElement {
         const wrapper = document.createElement("div");
         wrapper.classList.add("table-header-cell");
         const text = document.createElement("p");
-        text.onclick = (event) => {
-            console.log(event.target.innerText);
-            // this._sortByColumn(event, element.replace(/ /g, ""), inc % 2);
-        };
+        if (element !== this.elementNames.profileImage) {
+            text.classList.add('clickable');
+            text.onclick = (event) => {
+                this._sortByColumn(event.target.innerText);
+            };
+        }
         text.innerText = element;
         wrapper.append(text);
         tableHeader.append(wrapper);
@@ -432,30 +434,50 @@ class CMS extends HTMLElement {
             `;
     }
 
-    _sortByColumn(event, column, direction) {
-        let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
-        dataFromDataBase = JSON.parse(dataFromDataBase);
-        dataFromDataBase.sort((a, b) => {
-            let firstValue = a[column];
-            let secondValue = b[column];
-            if (typeof firstValue === "string" && column != "Dateofbirth") {
-                if (direction) {
-                    return !firstValue.localeCompare(secondValue);
+    _sortByColumn(element) {
+        let sortBy = null;
+        switch (element) {
+            case this.elementNames.firstName:
+                {
+                    sortBy = 'firstName';
+                    break;
                 }
-                return firstValue.localeCompare(secondValue);
-            } else {
-                if (typeof firstValue === "string" && column === "Dateofbirth") {
-                    if (direction === 1) {
-                        return moment(secondValue, 'LL').isBefore(firstValue, 'LL');
-                    }
-                    return moment(firstValue, 'LL').isBefore(secondValue, 'LL');
+            case this.elementNames.lastName:
+                {
+                    sortBy = 'lastName';
+                    break;
                 }
-            }
+            case this.elementNames.email:
+                {
+                    sortBy = 'email';
+                    break;
+                }
+            case this.elementNames.sex:
+                {
+                    sortBy = 'sex';
+                    break;
+                }
+            case this.elementNames.dateOfBirth:
+                {
+                    sortBy = 'dateOfBirth';
+                    break;
+                }
+            default:
+                {
+                    sortBy = 'firstName';
+                }
+        }
+
+        this.data.sort((a, b) => {
+            let firstValue = a.data[sortBy];
+            let secondValue = b.data[sortBy];
+            return firstValue.localeCompare(secondValue);
         });
-        this._reRender(dataFromDataBase);
+        this._reRender();
     }
 
-    _reRender(data) {
+    _reRender() {
+        let data = this.data;
         this.table.innerHTML = "";
         this.table.append(this.createTableHeader(this.tableHeader));
         if (!data) {
