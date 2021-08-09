@@ -97,12 +97,14 @@ class CMS extends HTMLElement {
     }
 
     createFilters() {
+        this.filteredData = [...this.data];
         const container = document.createElement('div');
         container.classList.add('filter-container');
         const showFilters = document.createElement('p');
         showFilters.innerText = 'Show filters';
         container.append(showFilters);
         const filtersContainer = document.createElement('div');
+        filtersContainer.classList.add('real-filter-container');
         const labelForKeyword = document.createElement('label');
         labelForKeyword.for = "keyword";
         labelForKeyword.innerText = "Keyword: ";
@@ -111,7 +113,7 @@ class CMS extends HTMLElement {
         searchByKeyWordInput.placeholder = "Write here..";
         searchByKeyWordInput.name = "keyword";
         searchByKeyWordInput.addEventListener('input', () => {
-            let tempData = [...this.data];
+            let tempData = [...this.filteredData];
             let filteredData = [];
             for (let x of tempData) {
                 let tempText = x.data;
@@ -122,6 +124,101 @@ class CMS extends HTMLElement {
             this._reRender(filteredData);
         });
         filtersContainer.append(labelForKeyword, searchByKeyWordInput);
+
+        const labelForSex = document.createElement('label');
+        labelForSex.for = "sexFilter";
+        labelForSex.innerText = "Sex: ";
+        const sexFilter = document.createElement('select');
+        sexFilter.name = "sexFilter";
+        sexFilter.id = "sexFilter";
+        const everySex = document.createElement('option');
+        everySex.value = "every";
+        everySex.innerText = "Every";
+        const maleSex = document.createElement('option');
+        maleSex.value = "male";
+        maleSex.innerText = "Male";
+        const femaleSex = document.createElement('option');
+        femaleSex.value = "female";
+        femaleSex.innerText = "Female";
+        sexFilter.append(everySex, maleSex, femaleSex);
+        sexFilter.onchange = () => {
+            if (sexFilter.value === 'every') {
+                this._reRender(this.data);
+                return;
+            }
+            if (sexFilter.value === 'female') {
+                let tempData = [...this.data];
+                let tempFilteredData = [];
+                for (let x of tempData) {
+                    let tempObj = x.data;
+                    if (tempObj.sex === "Female") {
+                        tempFilteredData.push(x);
+                    }
+                }
+                this._reRender(tempFilteredData);
+                return;
+            }
+            if (sexFilter.value === 'male') {
+                let tempData = [...this.data];
+                let tempFilteredData = [];
+                for (let x of tempData) {
+                    let tempObj = x.data;
+                    if (tempObj.sex === "Male") {
+                        tempFilteredData.push(x);
+                    }
+                }
+                this._reRender(tempFilteredData);
+                return;
+            }
+        };
+        filtersContainer.append(labelForSex, sexFilter);
+        const labelForProfilePicture = document.createElement('label');
+        labelForProfilePicture.for = 'filterForProfilePicture';
+        labelForProfilePicture.innerText = "Has profile picture: ";
+        const hasProfilePicture = document.createElement('select');
+        hasProfilePicture.name = 'filterForProfilePicture';
+        hasProfilePicture.id = 'filterForProfilePicture';
+        const everyProfilePicture = document.createElement('option');
+        everyProfilePicture.value = "every";
+        everyProfilePicture.innerText = "Every";
+        const onlyWhoHasProfilePicture = document.createElement('option');
+        onlyWhoHasProfilePicture.value = "has";
+        onlyWhoHasProfilePicture.innerText = "Has profile image";
+        const doNotHave = document.createElement('option');
+        doNotHave.value = "no";
+        doNotHave.innerText = "Do not have";
+        hasProfilePicture.append(everyProfilePicture, onlyWhoHasProfilePicture, doNotHave);
+        hasProfilePicture.onchange = () => {
+            if (hasProfilePicture.value === "every") {
+                this._reRender(this.data);
+                return;
+            }
+            if (hasProfilePicture.value === "has") {
+                let tempData = [...this.data];
+                let tempFilteredData = [];
+                for (let x of tempData) {
+                    let tempObj = x.data;
+                    if (tempObj.profileImage !== this.defaultImage) {
+                        tempFilteredData.push(x);
+                    }
+                }
+                this._reRender(tempFilteredData);
+                return;
+            }
+            if (hasProfilePicture.value === "no") {
+                let tempData = [...this.data];
+                let tempFilteredData = [];
+                for (let x of tempData) {
+                    let tempObj = x.data;
+                    if (tempObj.profileImage == this.defaultImage) {
+                        tempFilteredData.push(x);
+                    }
+                }
+                this._reRender(tempFilteredData);
+                return;
+            }
+        };
+        filtersContainer.append(labelForProfilePicture, hasProfilePicture);
         showFilters.onclick = () => {
             if (!this.filter) {
                 showFilters.innerText = "Unshow filters";
@@ -399,7 +496,6 @@ class CMS extends HTMLElement {
                     console.log(snapshot);
                     if (snapshot.state === "success") {
                         snapshot.ref.getDownloadURL().then((url) => {
-                                console.log(url);
                                 let profileImage = url;
                                 this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage);
                             })
@@ -429,12 +525,12 @@ class CMS extends HTMLElement {
         jsonObject.sex = sex;
         jsonObject.dateOfBirth = dateOfBirth;
         jsonObject.profileImage = profileImage;
-        this.data.push(jsonObject);
         db.collection('employees').add(jsonObject).then((success) => {
                 console.log('Data uploaded');
                 let dataToRender = {};
                 dataToRender.id = success.id;
                 dataToRender.data = jsonObject;
+                this.data.push(dataToRender);
                 this.table.append(this.createTableRow(dataToRender));
             })
             .catch(error => {

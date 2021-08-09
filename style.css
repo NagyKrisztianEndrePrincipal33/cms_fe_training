@@ -250,6 +250,26 @@ cms-component .styled-form {
     color: rgba(0, 0, 0, 0.75);
 }
 
+.real-filter-container {
+    color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.real-filter-container label {
+    color: rgba(0, 0, 0, 0.75);
+    padding: 0.5rem;
+    width: 60%;
+}
+
+.real-filter-container select,
+.real-filter-container input {
+    color: rgba(0, 0, 0, 0.75);
+    padding: 0.5rem;
+    width: 60%;
+}
+
 @media only screen and (max-width: 1000px) {
     cms-component {
         display: flex;
