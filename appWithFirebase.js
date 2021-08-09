@@ -219,6 +219,44 @@ class CMS extends HTMLElement {
             }
         };
         filtersContainer.append(labelForProfilePicture, hasProfilePicture);
+        const labelForDates = document.createElement('label');
+        labelForDates.for = 'dates';
+        labelForDates.innerText = "Born between dates:";
+        const startDate = document.createElement('input');
+        startDate.type = 'date';
+        startDate.max = moment().format('YYYY-MM-DD');
+        const endDate = document.createElement('input');
+        endDate.type = 'date';
+        endDate.max = moment().format('YYYY-MM-DD');
+        startDate.onchange = () => {
+            endDate.min = startDate.value;
+            if (endDate.value) {
+                let tempData = [...this.data];
+                let filteredData = [];
+                for (let x of tempData) {
+                    let tempObj = x.data;
+                    if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
+                        filteredData.push(x);
+                    }
+                }
+                this._reRender(filteredData);
+            }
+        }
+        endDate.onchange = () => {
+            startDate.max = endDate.value;
+            if (startDate.value) {
+                let tempData = [...this.data];
+                let filteredData = [];
+                for (let x of tempData) {
+                    let tempObj = x.data;
+                    if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
+                        filteredData.push(x);
+                    }
+                }
+                this._reRender(filteredData);
+            }
+        }
+        filtersContainer.append(labelForDates, startDate, endDate);
         showFilters.onclick = () => {
             if (!this.filter) {
                 showFilters.innerText = "Unshow filters";
