@@ -37,6 +37,14 @@ class CMS extends HTMLElement {
         this.dataBaseKey = "Employees";
         this.imageDatabaseKey = "Images";
         this.tooltip = null;
+        this.elementNames = {
+            profileImage: "Profile Image",
+            firstName: "Firstname",
+            lastName: "Lastname",
+            email: "Email",
+            sex: "Sex",
+            dateOfBirth: "Date of birth",
+        };
         this.selectors = {
             firstName: 'Firstname',
             lastName: 'Lastname',
@@ -61,6 +69,7 @@ class CMS extends HTMLElement {
             })
             .catch(error => {
                 this.createErrorMessage(error);
+                console.log(error);
             });
     }
 
@@ -189,6 +198,88 @@ class CMS extends HTMLElement {
         return tableCell;
     }
 
+    __createDefaultFormField(element) {
+        const div = document.createElement("div");
+        div.classList.add("form-row");
+        const label = document.createElement("label");
+        label.for = element.replace(/ /g, "");
+        label.innerText = element + ":";
+        const input = document.createElement("input");
+        input.id = element.replace(/ /g, "");
+        input.required = true;
+        input.type = "text";
+        input.placeholder = element;
+        div.append(label, input);
+        return div;
+    }
+
+    __createSexFormField(element) {
+        const div = document.createElement("div");
+        div.classList.add("form-row");
+        const label = document.createElement("label");
+        label.for = element.replace(/ /g, "");
+        label.innerText = element + ":";
+        const select = document.createElement("select");
+        select.name = element.replace(/ /g, "");
+        select.id = element.replace(/ /g, "");
+        const male = document.createElement("option");
+        male.value = "Male";
+        male.innerText = "Male";
+        const female = document.createElement("option");
+        female.value = "Female";
+        female.innerText = "Female";
+        select.append(male, female);
+        div.append(label, select);
+        return div;
+    }
+
+    __createDateOfBirthFormField(element) {
+        const div = document.createElement("div");
+        div.classList.add("form-row");
+        const label = document.createElement("label");
+        label.for = element.replace(/ /g, "");
+        label.innerText = element + ":";
+        const input = document.createElement("input");
+        input.required = true;
+        input.type = "date";
+        input.max = "2018-01-01";
+        input.id = element.replace(/ /g, "");
+        div.append(label, input);
+        return div;
+    }
+
+    __createEmailFormField(element) {
+        const div = document.createElement("div");
+        div.classList.add("form-row");
+        const label = document.createElement("label");
+        label.for = element.replace(/ /g, "");
+        label.innerText = element + ":";
+        const input = document.createElement("input");
+        input.id = element.replace(/ /g, "");
+        input.required = true;
+        input.type = "email";
+        input.placeholder = element;
+        div.append(label, input);
+        return div;
+    }
+
+    __createProfileImageFormField(element) {
+        const elementId = element.replace(/ /g, "");
+        const div = document.createElement("div");
+        div.classList.add("form-row");
+        const label = document.createElement("label");
+        label.for = elementId;
+        label.innerText = element + ":";
+        const input = document.createElement("input");
+        input.id = elementId;
+        input.name = elementId;
+        input.accept = "image/png, image/jpeg";
+        input.classList.add("input-type-file");
+        input.type = "file";
+        div.append(label, input);
+        return div;
+    }
+
     createFormSection(headerNames) {
         const form = document.createElement("form");
         form.classList.add("styled-form");
@@ -199,104 +290,13 @@ class CMS extends HTMLElement {
         h1.innerText = "Add a new employee to the list:";
         headerDiv.append(h1);
         form.append(headerDiv);
-        headerNames.forEach((element) => {
-            switch (element) {
-                case "Sex":
-                    {
-                        const div = document.createElement("div");
-                        div.classList.add("form-row");
-                        const label = document.createElement("label");
-                        label.for = element.replace(/ /g, "");
-                        label.innerText = element + ":";
-                        const select = document.createElement("select");
-                        select.name = element.replace(/ /g, "");
-                        select.id = element.replace(/ /g, "");
-                        const male = document.createElement("option");
-                        male.value = "Male";
-                        male.innerText = "Male";
-                        const female = document.createElement("option");
-                        female.value = "Female";
-                        female.innerText = "Female";
-                        select.append(male, female);
-                        div.append(label, select);
-                        form.append(div);
-                        break;
-                    }
-                case "Date of birth":
-                    {
-                        const div = document.createElement("div");
-                        div.classList.add("form-row");
-                        const label = document.createElement("label");
-                        label.for = element.replace(/ /g, "");
-                        label.innerText = element + ":";
-                        const input = document.createElement("input");
-                        input.required = true;
-                        input.type = "date";
-                        input.max = "2018-01-01";
-                        input.id = element.replace(/ /g, "");
-                        div.append(label, input);
-                        form.append(div);
-                        break;
-                    }
-                case "Id":
-                    {
-                        break;
-                    }
-                case "Profile Image":
-                    {
-                        const elementId = element.replace(/ /g, "");
-                        const div = document.createElement("div");
-                        div.classList.add("form-row");
-                        const label = document.createElement("label");
-                        label.for = elementId;
-                        label.innerText = element + ":";
-                        const input = document.createElement("input");
-                        input.id = elementId;
-                        input.name = elementId;
-                        input.accept = "image/png, image/jpeg";
-                        // input.required = true;
-                        input.classList.add("input-type-file");
-                        input.type = "file";
-                        div.append(label, input);
-                        form.append(div);
-                        break;
-                    }
-                case "Email":
-                    {
-                        const div = document.createElement("div");
-                        div.classList.add("form-row");
-                        const label = document.createElement("label");
-                        label.for = element.replace(/ /g, "");
-                        label.innerText = element + ":";
-                        const input = document.createElement("input");
-                        input.id = element.replace(/ /g, "");
-                        input.required = true;
-                        input.type = "email";
-                        // input.pattern = "/^\S+@\S+$/";
-                        // input.pattern = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-                        // input.setAttribute('pattern', "/^\S+@\S+$/");
-                        input.placeholder = element;
-                        div.append(label, input);
-                        form.append(div);
-                        break;
-                    }
-                default:
-                    {
-                        const div = document.createElement("div");
-                        div.classList.add("form-row");
-                        const label = document.createElement("label");
-                        label.for = element.replace(/ /g, "");
-                        label.innerText = element + ":";
-                        const input = document.createElement("input");
-                        input.id = element.replace(/ /g, "");
-                        input.required = true;
-                        input.type = "text";
-                        input.placeholder = element;
-                        div.append(label, input);
-                        form.append(div);
-                    }
-            }
-        });
+        form.append(this.__createDefaultFormField(this.elementNames.firstName));
+        form.append(this.__createDefaultFormField(this.elementNames.lastName));
+        form.append(this.__createEmailFormField(this.elementNames.email));
+        form.append(this.__createSexFormField(this.elementNames.sex));
+        form.append(this.__createDateOfBirthFormField(this.elementNames.dateOfBirth));
+        form.append(this.__createProfileImageFormField(this.elementNames.profileImage));
+
         const div = document.createElement("div");
         div.classList.add("form-row");
         const submit = document.createElement("input");
