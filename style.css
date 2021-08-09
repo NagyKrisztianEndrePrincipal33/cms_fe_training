@@ -236,6 +236,20 @@ cms-component .styled-form {
     transform: translateX(-50%);
 }
 
+.filter-container {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: #f3f3f3;
+}
+
+.filter-container p {
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.75);
+}
+
 @media only screen and (max-width: 1000px) {
     cms-component {
         display: flex;

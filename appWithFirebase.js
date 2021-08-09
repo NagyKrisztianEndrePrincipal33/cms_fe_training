@@ -54,6 +54,7 @@ class CMS extends HTMLElement {
             profileImage: 'ProfileImage'
         };
         this.data = [];
+        this.filter = false;
     }
 
     connectedCallback() {
@@ -90,9 +91,49 @@ class CMS extends HTMLElement {
         this.tooltip = this.createToolTip();
         const tableContainer = document.createElement("div");
         tableContainer.classList.add("table-container");
-        tableContainer.append(this.table);
+        tableContainer.append(this.createFilters(), this.table);
         this.append(tableContainer);
         this.append(this.tooltip);
+    }
+
+    createFilters() {
+        const container = document.createElement('div');
+        container.classList.add('filter-container');
+        const showFilters = document.createElement('p');
+        showFilters.innerText = 'Show filters';
+        container.append(showFilters);
+        const filtersContainer = document.createElement('div');
+        const labelForKeyword = document.createElement('label');
+        labelForKeyword.for = "keyword";
+        labelForKeyword.innerText = "Keyword: ";
+        const searchByKeyWordInput = document.createElement('input');
+        searchByKeyWordInput.type = "text";
+        searchByKeyWordInput.placeholder = "Write here..";
+        searchByKeyWordInput.name = "keyword";
+        searchByKeyWordInput.addEventListener('input', () => {
+            let tempData = [...this.data];
+            let filteredData = [];
+            for (let x of tempData) {
+                let tempText = x.data;
+                if ((tempText.email.includes(searchByKeyWordInput.value)) || (tempText.firstName.includes(searchByKeyWordInput.value)) || (tempText.lastName.includes(searchByKeyWordInput.value))) {
+                    filteredData.push(x);
+                }
+            }
+            this._reRender(filteredData);
+        });
+        filtersContainer.append(labelForKeyword, searchByKeyWordInput);
+        showFilters.onclick = () => {
+            if (!this.filter) {
+                showFilters.innerText = "Unshow filters";
+                container.append(filtersContainer);
+                this.filter = true;
+            } else {
+                showFilters.innerText = 'Show filters';
+                container.removeChild(filtersContainer);
+                this.filter = false;
+            }
+        }
+        return container;
     }
 
     createToolTip() {
@@ -476,8 +517,14 @@ class CMS extends HTMLElement {
         this._reRender();
     }
 
-    _reRender() {
-        let data = this.data;
+    _reRender(preData) {
+        let data;
+        if (preData) {
+            data = preData;
+        } else {
+            data = this.data;
+        }
+
         this.table.innerHTML = "";
         this.table.append(this.createTableHeader(this.tableHeader));
         if (!data) {
