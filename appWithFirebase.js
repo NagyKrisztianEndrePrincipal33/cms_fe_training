@@ -248,7 +248,7 @@ class CMS extends HTMLElement {
         const input = document.createElement("input");
         input.required = true;
         input.type = "date";
-        input.max = "2018-01-01";
+        input.max = moment().format('YYYY-MM-DD');
         input.id = element.replace(/ /g, "");
         div.append(label, input);
         return div;
