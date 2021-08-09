@@ -25,7 +25,6 @@ class CMS extends HTMLElement {
         this.table = null;
         this.form = null;
         this.tableHeader = [
-            // "Id",
             "Profile Image",
             "Firstname",
             "Lastname",
@@ -76,21 +75,9 @@ class CMS extends HTMLElement {
         this.table = document.createElement("table");
         this.table.classList.add("styled-table");
         this.table.append(this.createTableHeader(this.tableHeader));
-        // if (!useFirebase) {
-        //     let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
-        //     dataFromDataBase = JSON.parse(dataFromDataBase);
-        //     if (!dataFromDataBase) {
-        //         console.log("Nothing to show");
-        //     } else {
-        //         dataFromDataBase.forEach((element) => {
-        //             this.table.append(this.createTableRow(element));
-        //         });
-        //     }
-        // } else {
         this.data.forEach((element) => {
             this.table.append(this.createTableRow(element));
         });
-        // }
         this.tooltip = this.createToolTip();
         const tableContainer = document.createElement("div");
         tableContainer.classList.add("table-container");
@@ -144,7 +131,6 @@ class CMS extends HTMLElement {
         const text = document.createElement("p");
         text.innerText = "Delete Employee";
         tableHeader.append(text);
-        // tableHeader.innerText = "Delete Employee"
         tableRow.append(tableHeader);
         return tableRow;
     }
@@ -154,75 +140,6 @@ class CMS extends HTMLElement {
         data = data.data;
         const tableRow = document.createElement("tr");
         tableRow.classList.add("table-body-row");
-        // for (let x in data) {
-        //     if (x === "ProfileImage") {
-        //         let image = this._getImage(data.id);
-        //         if (image) {
-        //             const tableCell = document.createElement("td");
-        //             tableCell.classList.add("tabble-cell");
-        //             const imageContainer = document.createElement("div");
-        //             imageContainer.classList.add("profile-image-cell");
-        //             imageContainer.style = `background-image : url(${image})`;
-        //             tableCell.append(imageContainer);
-        //             tableRow.append(tableCell);
-        //         } else {
-        //             const tableCell = document.createElement("td");
-        //             tableCell.classList.add("tabble-cell");
-        //             tableCell.innerText = "No Image Here";
-        //             tableRow.append(tableCell);
-        //         }
-
-        //         continue;
-        //     }
-        //     if (x === "Dateofbirth") {
-        //         const tableCell = document.createElement("td");
-        //         moment.locale("ro");
-        //         tableCell.innerText = moment(data[x]).format("LL");
-        //         tableCell.classList.add("tabble-cell");
-        // tableCell.onmousemove = (event) => {
-        //     this._onMouseOverHover(event);
-        // };
-        // tableCell.onmouseout = (event) => {
-        //     this._onMouseOutHover(event);
-        // };
-        // tableCell.onmouseenter = (event) => {
-        //     this._onMouseInHover(event);
-        // };
-        //         tableRow.append(tableCell);
-        //         continue;
-        //     }
-        //     if (x === "Firstname") {
-        //         const tableCell = document.createElement("td");
-        //         let image = this._getImage(data.id);
-        //         if (image) {
-        //             const p = document.createElement("p");
-        //             p.innerText = data[x];
-        //             const imageContainer = document.createElement("div");
-        //             imageContainer.classList.add("profile-image-cell");
-        //             imageContainer.style = `background-image : url(${image})`;
-        //             tableCell.append(imageContainer, p);
-        //             tableCell.classList.add("table-cell-with-image-and-paragraph");
-        //         } else {
-        //             tableCell.innerText = data[x];
-        //         }
-        //         tableCell.classList.add("tabble-cell");
-        //         tableRow.append(tableCell);
-        //         continue;
-        //     }
-        //     const tableCell = document.createElement("td");
-        //     tableCell.innerText = data[x];
-        //     tableCell.classList.add("tabble-cell");
-        //     tableCell.onmousemove = (event) => {
-        //         this._onMouseOverHover(event);
-        //     };
-        //     tableCell.onmouseout = (event) => {
-        //         this._onMouseOutHover(event);
-        //     };
-        //     tableCell.onmouseenter = (event) => {
-        //         this._onMouseInHover(event);
-        //     };
-        //     tableRow.append(tableCell);
-        // }
         let image = data.profileImage;
         if (image) {
             const tableCell = document.createElement("td");
@@ -249,7 +166,6 @@ class CMS extends HTMLElement {
         const deleteButton = document.createElement("button");
         deleteButton.onclick = () => {
             this._deleteEmployee(id);
-            // this._deleteEmployeeImage(data.id);
         };
         deleteButton.innerText = "X";
         deleteCell.append(deleteButton);
@@ -394,63 +310,6 @@ class CMS extends HTMLElement {
     saveDataOnClickSubmit(event) {
         event.preventDefault();
         console.log("Handling Data Saving");
-        // let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
-        // dataFromDataBase = JSON.parse(dataFromDataBase);
-        // let newEmployee = {};
-        // let employeeId = this._getLastId(dataFromDataBase) + 1;
-        // newEmployee["id"] = employeeId;
-        // this.tableHeader.forEach((element) => {
-        //     switch (element) {
-        //         case "Profile Image":
-        //             {
-        //                 return;
-        //             }
-        //         case "Id":
-        //             {
-        //                 return;
-        //             }
-        //         default:
-        //             {
-        //                 newEmployee[element.replace(/ /g, "")] = this.form.querySelector(
-        //                     `#${element.replace(/ /g, "")}`
-        //                 ).value;
-
-        //                 break;
-        //             }
-        //     }
-        // });
-        // let imageCase = "Profile Image";
-        // imageCase = imageCase.replace(/ /g, "");
-        // newEmployee[imageCase] = null;
-        // let imageFile = this.form.querySelector(`#${imageCase}`).files[0];
-
-        // _turnImageToBase64(imageFile).then((data) => {
-        //     let imageStorage = this.myStorage.getItem(this.imageDatabaseKey);
-        //     imageStorage = JSON.parse(imageStorage);
-        //     if (!imageStorage) {
-        //         imageStorage = [];
-        //     }
-        //     let userImage = {};
-        //     userImage.id = employeeId;
-        //     userImage.image = data;
-        //     imageStorage.push(userImage);
-        //     this.myStorage.setItem(
-        //         this.imageDatabaseKey,
-        //         JSON.stringify(imageStorage)
-        //     );
-        //     if (!dataFromDataBase) {
-        //         dataFromDataBase = [];
-        //     }
-        //     dataFromDataBase.push(newEmployee);
-        //     this.myStorage.setItem(
-        //         this.dataBaseKey,
-        //         JSON.stringify(dataFromDataBase)
-        //     );
-        //     this.form.reset();
-        //     this.table.append(
-        //         this.createTableRow(dataFromDataBase[dataFromDataBase.length - 1])
-        //     );
-        // });
         const textRegex = /^[a-zA-z ]*$/;
         let firstName = this.form.querySelector(`#${this.selectors.firstName}`).value;
         if (!textRegex.test(firstName)) {
@@ -476,6 +335,13 @@ class CMS extends HTMLElement {
         let dateOfBirth = this.form.querySelector(`#${this.selectors.dateOfBirth}`).value;
         if (!dateOfBirth) {
             this.createErrorMessage("The date of birth should be selected!");
+            return;
+        }
+        let temp = this.data.filter(obj => {
+            return obj.data.email === email;
+        });
+        if (temp.length > 0) {
+            this.createErrorMessage('The employee with this email is allready in the table');
             return;
         }
         let imagePath = this.form.querySelector(`#${this.selectors.profileImage}`).files[0];
@@ -529,12 +395,6 @@ class CMS extends HTMLElement {
             });
     }
 
-    _getLastId(dataFromDataBase) {
-        if (!dataFromDataBase) {
-            return 0;
-        }
-        return dataFromDataBase[dataFromDataBase.length - 1].id;
-    }
 
     _deleteEmployee(id) {
         console.log("Delete employee with id: " + id);
@@ -544,50 +404,10 @@ class CMS extends HTMLElement {
             this.data = this.data.filter(function(obj) {
                 return obj.id !== id;
             });
-            console.log(data);
 
         }).catch(error => {
             this.createErrorMessage(error);
         });
-        // let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
-        // dataFromDataBase = JSON.parse(dataFromDataBase);
-        // let indexOfDeleted = dataFromDataBase.findIndex((element) => {
-        //     if (element.id === id) {
-        //         return true;
-        //     }
-        // });
-        // this.table.removeChild(this.table.childNodes[indexOfDeleted + 1]);
-        // dataFromDataBase = dataFromDataBase.filter(function(obj) {
-        //     return obj.id !== id;
-        // });
-        // this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
-    }
-
-    _deleteEmployeeImage(id) {
-        let imagesFromDataBase = this.myStorage.getItem(this.imageDatabaseKey);
-        imagesFromDataBase = JSON.parse(imagesFromDataBase);
-        imagesFromDataBase = imagesFromDataBase.filter(function(obj) {
-            return obj.id !== id;
-        });
-        this.myStorage.setItem(
-            this.imageDatabaseKey,
-            JSON.stringify(imagesFromDataBase)
-        );
-    }
-
-    _getImage(id) {
-        let imageFromDatabase = this.myStorage.getItem(this.imageDatabaseKey);
-        imageFromDatabase = JSON.parse(imageFromDatabase);
-        let indexOfNeeded = imageFromDatabase.findIndex((element) => {
-            if (element.id === id) {
-                return true;
-            }
-        });
-        if (indexOfNeeded === -1) {
-            return null;
-        } else {
-            return imageFromDatabase[indexOfNeeded].image;
-        }
     }
 
     _onMouseInHover(event) {
@@ -645,17 +465,5 @@ class CMS extends HTMLElement {
 
 }
 
-function _turnImageToBase64(element) {
-    return new Promise((resolve, reject) => {
-        let file = element;
-        let reader = new FileReader();
-        reader.onload = () => {
-            resolve(reader.result);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-
-}
 
 window.customElements.define("cms-component", CMS);
