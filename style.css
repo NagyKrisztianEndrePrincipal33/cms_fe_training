@@ -215,6 +215,21 @@ cms-component .styled-form {
     box-sizing: border-box;
 }
 
+.errorPopup {
+    position: absolute;
+    top: 1.5rem;
+    z-index: 1000;
+    padding: 15px;
+    width: auto;
+    font-size: 1.5rem;
+    color: red;
+    background-color: white;
+    border-radius: 25px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 @media only screen and (max-width: 1000px) {
     cms-component {
         display: flex;

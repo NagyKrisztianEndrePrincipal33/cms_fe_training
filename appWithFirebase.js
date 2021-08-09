@@ -1,3 +1,21 @@
+var firebaseConfig = {
+    apiKey: "AIzaSyAzcm0C7N7__-vAHe0COrSCEO7Kcusdznw",
+    authDomain: "contact-management-syste-a22c9.firebaseapp.com",
+    projectId: "contact-management-syste-a22c9",
+    storageBucket: "contact-management-syste-a22c9.appspot.com",
+    messagingSenderId: "309239271351",
+    appId: "1:309239271351:web:7336060d79c5a47c85a232",
+    measurementId: "G-46HB65HQQD"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+let useFirebase = false;
+
+const defaultImage = "https://firebasestorage.googleapis.com/v0/b/contact-management-syste-a22c9.appspot.com/o/images%2FEmployee-Placeholder-Image-e1555622993894.jpg?alt=media&token=9d52a5eb-810b-4bd1-80b0-0c4335654b9b";
 class CMS extends HTMLElement {
     constructor() {
         super();
@@ -16,6 +34,14 @@ class CMS extends HTMLElement {
         this.dataBaseKey = "Employees";
         this.imageDatabaseKey = "Images";
         this.tooltip = null;
+        this.selectors = {
+            firstName: 'Firstname',
+            lastName: 'Lastname',
+            email: 'Email',
+            sex: 'Sex',
+            dateOfBirth: 'Dateofbirth',
+            profileImage: 'ProfileImage'
+        };
     }
 
     connectedCallback() {
@@ -34,6 +60,17 @@ class CMS extends HTMLElement {
         this.table = document.createElement("table");
         this.table.classList.add("styled-table");
         this.table.append(this.createTableHeader(this.tableHeader));
+        if (!useFirebase) {
+            let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
+            dataFromDataBase = JSON.parse(dataFromDataBase);
+            if (!dataFromDataBase) {
+                console.log("Nothing to show");
+            } else {
+                dataFromDataBase.forEach((element) => {
+                    this.table.append(this.createTableRow(element));
+                });
+            }
+        }
         this.tooltip = this.createToolTip();
         const tableContainer = document.createElement("div");
         tableContainer.classList.add("table-container");
@@ -47,6 +84,16 @@ class CMS extends HTMLElement {
         tooltip.classList.add("tooltip");
         tooltip.classList.toggle("hide");
         return tooltip;
+    }
+
+    createErrorMessage(text) {
+        const errorDiv = document.createElement('div');
+        errorDiv.classList.add('errorPopup');
+        errorDiv.innerHTML = text;
+        this.append(errorDiv);
+        setTimeout(() => {
+            this.removeChild(errorDiv);
+        }, 3000);
     }
 
     createTableHeader(headerNames) {
@@ -232,7 +279,7 @@ class CMS extends HTMLElement {
                         input.id = elementId;
                         input.name = elementId;
                         input.accept = "image/png, image/jpeg";
-                        input.required = true;
+                        // input.required = true;
                         input.classList.add("input-type-file");
                         input.type = "file";
                         div.append(label, input);
@@ -288,63 +335,134 @@ class CMS extends HTMLElement {
     saveDataOnClickSubmit(event) {
         event.preventDefault();
         console.log("Handling Data Saving");
-        let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
-        dataFromDataBase = JSON.parse(dataFromDataBase);
-        let newEmployee = {};
-        let employeeId = this._getLastId(dataFromDataBase) + 1;
-        newEmployee["id"] = employeeId;
-        this.tableHeader.forEach((element) => {
-            switch (element) {
-                case "Profile Image":
-                    {
+        // let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
+        // dataFromDataBase = JSON.parse(dataFromDataBase);
+        // let newEmployee = {};
+        // let employeeId = this._getLastId(dataFromDataBase) + 1;
+        // newEmployee["id"] = employeeId;
+        // this.tableHeader.forEach((element) => {
+        //     switch (element) {
+        //         case "Profile Image":
+        //             {
+        //                 return;
+        //             }
+        //         case "Id":
+        //             {
+        //                 return;
+        //             }
+        //         default:
+        //             {
+        //                 newEmployee[element.replace(/ /g, "")] = this.form.querySelector(
+        //                     `#${element.replace(/ /g, "")}`
+        //                 ).value;
+
+        //                 break;
+        //             }
+        //     }
+        // });
+        // let imageCase = "Profile Image";
+        // imageCase = imageCase.replace(/ /g, "");
+        // newEmployee[imageCase] = null;
+        // let imageFile = this.form.querySelector(`#${imageCase}`).files[0];
+
+        // _turnImageToBase64(imageFile).then((data) => {
+        //     let imageStorage = this.myStorage.getItem(this.imageDatabaseKey);
+        //     imageStorage = JSON.parse(imageStorage);
+        //     if (!imageStorage) {
+        //         imageStorage = [];
+        //     }
+        //     let userImage = {};
+        //     userImage.id = employeeId;
+        //     userImage.image = data;
+        //     imageStorage.push(userImage);
+        //     this.myStorage.setItem(
+        //         this.imageDatabaseKey,
+        //         JSON.stringify(imageStorage)
+        //     );
+        //     if (!dataFromDataBase) {
+        //         dataFromDataBase = [];
+        //     }
+        //     dataFromDataBase.push(newEmployee);
+        //     this.myStorage.setItem(
+        //         this.dataBaseKey,
+        //         JSON.stringify(dataFromDataBase)
+        //     );
+        //     this.form.reset();
+        //     this.table.append(
+        //         this.createTableRow(dataFromDataBase[dataFromDataBase.length - 1])
+        //     );
+        // });
+        const textRegex = /^[a-zA-z ]*$/;
+        let firstName = this.form.querySelector(`#${this.selectors.firstName}`).value;
+        if (!textRegex.test(firstName)) {
+            this.createErrorMessage('The firstname field should contain only letters!');
+            return;
+        }
+        let lastName = this.form.querySelector(`#${this.selectors.lastName}`).value;
+        if (!textRegex.test(lastName)) {
+            this.createErrorMessage("The lastname field should contain only letters!");
+            return;
+        }
+        const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        let email = this.form.querySelector(`#${this.selectors.email}`).value;
+        if (!emailRegex.test(email)) {
+            this.createErrorMessage("The email field should contain a real email!");
+            return;
+        }
+        let sex = this.form.querySelector(`#${this.selectors.sex}`).value;
+        if (!sex) {
+            this.createErrorMessage("The sex value should be selected!");
+            return;
+        }
+        let dateOfBirth = this.form.querySelector(`#${this.selectors.dateOfBirth}`).value;
+        if (!dateOfBirth) {
+            this.createErrorMessage("The date of birth should be selected!");
+            return;
+        }
+        let imagePath = this.form.querySelector(`#${this.selectors.profileImage}`).files[0];
+        if (imagePath) {
+            let imageName = imagePath.name;
+            let storageRef = storage.ref('images/' + imageName);
+            storageRef.put(imagePath).then((snapshot) => {
+                    console.log(snapshot);
+                    if (snapshot.state === "success") {
+                        snapshot.ref.getDownloadURL().then((url) => {
+                                console.log(url);
+                                let profileImage = url;
+                                this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage);
+                            })
+                            .catch(error => {
+                                this.createErrorMessage(error);
+                            });
+                    } else {
+                        this.createErrorMessage("Something went wrong at image uploading!");
                         return;
                     }
-                case "Id":
-                    {
-                        return;
-                    }
-                default:
-                    {
-                        newEmployee[element.replace(/ /g, "")] = this.form.querySelector(
-                            `#${element.replace(/ /g, "")}`
-                        ).value;
+                })
+                .catch(error => {
+                    this.createErrorMessage(error);
+                });
+        } else {
+            let profileImage = defaultImage;
+            this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage);
+        }
 
-                        break;
-                    }
-            }
-        });
-        let imageCase = "Profile Image";
-        imageCase = imageCase.replace(/ /g, "");
-        newEmployee[imageCase] = null;
-        let imageFile = this.form.querySelector(`#${imageCase}`).files[0];
+    }
 
-        _turnImageToBase64(imageFile).then((data) => {
-            let imageStorage = this.myStorage.getItem(this.imageDatabaseKey);
-            imageStorage = JSON.parse(imageStorage);
-            if (!imageStorage) {
-                imageStorage = [];
-            }
-            let userImage = {};
-            userImage.id = employeeId;
-            userImage.image = data;
-            imageStorage.push(userImage);
-            this.myStorage.setItem(
-                this.imageDatabaseKey,
-                JSON.stringify(imageStorage)
-            );
-            if (!dataFromDataBase) {
-                dataFromDataBase = [];
-            }
-            dataFromDataBase.push(newEmployee);
-            this.myStorage.setItem(
-                this.dataBaseKey,
-                JSON.stringify(dataFromDataBase)
-            );
-            this.form.reset();
-            this.table.append(
-                this.createTableRow(dataFromDataBase[dataFromDataBase.length - 1])
-            );
-        });
+    _saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage) {
+        const jsonObject = {};
+        jsonObject.firstName = firstName;
+        jsonObject.lastName = lastName;
+        jsonObject.email = email;
+        jsonObject.sex = sex;
+        jsonObject.dateOfBirth = dateOfBirth;
+        jsonObject.profileImage = profileImage;
+        db.collection('employees').add(jsonObject).then((succes) => {
+                console.log('Data uploaded');
+            })
+            .catch(error => {
+                this.createErrorMessage(error);
+            });
     }
 
     _getLastId(dataFromDataBase) {
@@ -449,6 +567,7 @@ class CMS extends HTMLElement {
             });
         }
     }
+
 }
 
 function _turnImageToBase64(element) {
@@ -461,6 +580,7 @@ function _turnImageToBase64(element) {
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
+
 }
 
 window.customElements.define("cms-component", CMS);
