@@ -17,6 +17,37 @@ body {
     text-align: left;
 }
 
+.arrow {
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 2px;
+    width: 0px;
+    gap: 2px;
+    height: 0px;
+    align-self: center;
+}
+
+.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+.right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+}
+
+.up {
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+}
+
+.table-header-cell {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+}
+
 .tabble-cell {
     padding: 12px 15px;
     width: auto;
