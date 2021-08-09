@@ -112,29 +112,33 @@ class CMS extends HTMLElement {
         }, 3000);
     }
 
+    __createTableHeaderCell(element) {
+        const tableHeader = document.createElement("th");
+        tableHeader.classList.add("tabble-cell");
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("table-header-cell");
+        const text = document.createElement("p");
+        text.onclick = (event) => {
+            console.log(event.target.innerText);
+            // this._sortByColumn(event, element.replace(/ /g, ""), inc % 2);
+        };
+        text.innerText = element;
+        wrapper.append(text);
+        tableHeader.append(wrapper);
+        return tableHeader;
+    }
+
     createTableHeader(headerNames) {
         const tableRow = document.createElement("tr");
         tableRow.classList.add("table-header-row");
-        headerNames.forEach((element) => {
-            const tableHeader = document.createElement("th");
-            tableHeader.classList.add("tabble-cell");
-            const wrapper = document.createElement("div");
-            wrapper.classList.add("table-header-cell");
-            let button = document.createElement("i");
-            button.classList.add("arrow");
-            button.classList.add("right");
-            let inc = 0;
-            button.onclick = (event) => {
-                // inc = inc + 1;
-                this._sortByColumn(event, element.replace(/ /g, ""), inc % 2);
-            };
-            const text = document.createElement("p");
-            text.innerText = element;
-            wrapper.append(button, text);
-            tableHeader.append(wrapper);
 
-            tableRow.append(tableHeader);
-        });
+        tableRow.append(this.__createTableHeaderCell(this.elementNames.profileImage));
+        tableRow.append(this.__createTableHeaderCell(this.elementNames.firstName));
+        tableRow.append(this.__createTableHeaderCell(this.elementNames.lastName));
+        tableRow.append(this.__createTableHeaderCell(this.elementNames.email));
+        tableRow.append(this.__createTableHeaderCell(this.elementNames.sex));
+        tableRow.append(this.__createTableHeaderCell(this.elementNames.dateOfBirth));
+
         const tableHeader = document.createElement("th");
         tableHeader.classList.add("table-cell");
         const text = document.createElement("p");

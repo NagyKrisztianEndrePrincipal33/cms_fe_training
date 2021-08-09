@@ -45,8 +45,12 @@ body {
 }
 
 .table-header-cell {
-    display: grid;
-    grid-template-columns: 1fr 4fr;
+    transition: all 2s;
+    cursor: pointer;
+}
+
+.table-header-cell:hover {
+    text-decoration: underline;
 }
 
 .tabble-cell {
