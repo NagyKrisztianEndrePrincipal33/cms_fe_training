@@ -16,19 +16,23 @@ const storage = firebase.storage();
 let useFirebase = false;
 
 const defaultImage = "https://firebasestorage.googleapis.com/v0/b/contact-management-syste-a22c9.appspot.com/o/images%2FEmployee-Placeholder-Image-e1555622993894.jpg?alt=media&token=9d52a5eb-810b-4bd1-80b0-0c4335654b9b";
+
+moment.locale("ro");
+
 class CMS extends HTMLElement {
     constructor() {
         super();
         this.table = null;
         this.form = null;
         this.tableHeader = [
-            "Id",
+            // "Id",
+            "Profile Image",
             "Firstname",
             "Lastname",
             "Email",
             "Sex",
             "Date of birth",
-            "Profile Image",
+
         ];
         this.myStorage = window.localStorage;
         this.dataBaseKey = "Employees";
@@ -42,11 +46,23 @@ class CMS extends HTMLElement {
             dateOfBirth: 'Dateofbirth',
             profileImage: 'ProfileImage'
         };
+        this.data = [];
     }
 
     connectedCallback() {
         console.log("CMS connected!");
-        this.render();
+        db.collection('employees').get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    let temp = {};
+                    temp.id = doc.id;
+                    temp.data = doc.data();
+                    this.data.push(temp);
+                });
+                this.render();
+            })
+            .catch(error => {
+                this.createErrorMessage(error);
+            });
     }
 
     disconnectedCallbacK() {
@@ -60,17 +76,21 @@ class CMS extends HTMLElement {
         this.table = document.createElement("table");
         this.table.classList.add("styled-table");
         this.table.append(this.createTableHeader(this.tableHeader));
-        if (!useFirebase) {
-            let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
-            dataFromDataBase = JSON.parse(dataFromDataBase);
-            if (!dataFromDataBase) {
-                console.log("Nothing to show");
-            } else {
-                dataFromDataBase.forEach((element) => {
-                    this.table.append(this.createTableRow(element));
-                });
-            }
-        }
+        // if (!useFirebase) {
+        //     let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
+        //     dataFromDataBase = JSON.parse(dataFromDataBase);
+        //     if (!dataFromDataBase) {
+        //         console.log("Nothing to show");
+        //     } else {
+        //         dataFromDataBase.forEach((element) => {
+        //             this.table.append(this.createTableRow(element));
+        //         });
+        //     }
+        // } else {
+        this.data.forEach((element) => {
+            this.table.append(this.createTableRow(element));
+        });
+        // }
         this.tooltip = this.createToolTip();
         const tableContainer = document.createElement("div");
         tableContainer.classList.add("table-container");
@@ -130,88 +150,127 @@ class CMS extends HTMLElement {
     }
 
     createTableRow(data) {
+        const id = data.id;
+        data = data.data;
         const tableRow = document.createElement("tr");
         tableRow.classList.add("table-body-row");
-        for (let x in data) {
-            if (x === "ProfileImage") {
-                let image = this._getImage(data.id);
-                if (image) {
-                    const tableCell = document.createElement("td");
-                    tableCell.classList.add("tabble-cell");
-                    const imageContainer = document.createElement("div");
-                    imageContainer.classList.add("profile-image-cell");
-                    imageContainer.style = `background-image : url(${image})`;
-                    tableCell.append(imageContainer);
-                    tableRow.append(tableCell);
-                } else {
-                    const tableCell = document.createElement("td");
-                    tableCell.classList.add("tabble-cell");
-                    tableCell.innerText = "No Image Here";
-                    tableRow.append(tableCell);
-                }
+        // for (let x in data) {
+        //     if (x === "ProfileImage") {
+        //         let image = this._getImage(data.id);
+        //         if (image) {
+        //             const tableCell = document.createElement("td");
+        //             tableCell.classList.add("tabble-cell");
+        //             const imageContainer = document.createElement("div");
+        //             imageContainer.classList.add("profile-image-cell");
+        //             imageContainer.style = `background-image : url(${image})`;
+        //             tableCell.append(imageContainer);
+        //             tableRow.append(tableCell);
+        //         } else {
+        //             const tableCell = document.createElement("td");
+        //             tableCell.classList.add("tabble-cell");
+        //             tableCell.innerText = "No Image Here";
+        //             tableRow.append(tableCell);
+        //         }
 
-                continue;
-            }
-            if (x === "Dateofbirth") {
-                const tableCell = document.createElement("td");
-                moment.locale("ro");
-                tableCell.innerText = moment(data[x]).format("LL");
-                tableCell.classList.add("tabble-cell");
-                tableCell.onmousemove = (event) => {
-                    this._onMouseOverHover(event);
-                };
-                tableCell.onmouseout = (event) => {
-                    this._onMouseOutHover(event);
-                };
-                tableCell.onmouseenter = (event) => {
-                    this._onMouseInHover(event);
-                };
-                tableRow.append(tableCell);
-                continue;
-            }
-            if (x === "Firstname") {
-                const tableCell = document.createElement("td");
-                let image = this._getImage(data.id);
-                if (image) {
-                    const p = document.createElement("p");
-                    p.innerText = data[x];
-                    const imageContainer = document.createElement("div");
-                    imageContainer.classList.add("profile-image-cell");
-                    imageContainer.style = `background-image : url(${image})`;
-                    tableCell.append(imageContainer, p);
-                    tableCell.classList.add("table-cell-with-image-and-paragraph");
-                } else {
-                    tableCell.innerText = data[x];
-                }
-                tableCell.classList.add("tabble-cell");
-                tableRow.append(tableCell);
-                continue;
-            }
+        //         continue;
+        //     }
+        //     if (x === "Dateofbirth") {
+        //         const tableCell = document.createElement("td");
+        //         moment.locale("ro");
+        //         tableCell.innerText = moment(data[x]).format("LL");
+        //         tableCell.classList.add("tabble-cell");
+        // tableCell.onmousemove = (event) => {
+        //     this._onMouseOverHover(event);
+        // };
+        // tableCell.onmouseout = (event) => {
+        //     this._onMouseOutHover(event);
+        // };
+        // tableCell.onmouseenter = (event) => {
+        //     this._onMouseInHover(event);
+        // };
+        //         tableRow.append(tableCell);
+        //         continue;
+        //     }
+        //     if (x === "Firstname") {
+        //         const tableCell = document.createElement("td");
+        //         let image = this._getImage(data.id);
+        //         if (image) {
+        //             const p = document.createElement("p");
+        //             p.innerText = data[x];
+        //             const imageContainer = document.createElement("div");
+        //             imageContainer.classList.add("profile-image-cell");
+        //             imageContainer.style = `background-image : url(${image})`;
+        //             tableCell.append(imageContainer, p);
+        //             tableCell.classList.add("table-cell-with-image-and-paragraph");
+        //         } else {
+        //             tableCell.innerText = data[x];
+        //         }
+        //         tableCell.classList.add("tabble-cell");
+        //         tableRow.append(tableCell);
+        //         continue;
+        //     }
+        //     const tableCell = document.createElement("td");
+        //     tableCell.innerText = data[x];
+        //     tableCell.classList.add("tabble-cell");
+        //     tableCell.onmousemove = (event) => {
+        //         this._onMouseOverHover(event);
+        //     };
+        //     tableCell.onmouseout = (event) => {
+        //         this._onMouseOutHover(event);
+        //     };
+        //     tableCell.onmouseenter = (event) => {
+        //         this._onMouseInHover(event);
+        //     };
+        //     tableRow.append(tableCell);
+        // }
+        let image = data.profileImage;
+        if (image) {
             const tableCell = document.createElement("td");
-            tableCell.innerText = data[x];
             tableCell.classList.add("tabble-cell");
-            tableCell.onmousemove = (event) => {
-                this._onMouseOverHover(event);
-            };
-            tableCell.onmouseout = (event) => {
-                this._onMouseOutHover(event);
-            };
-            tableCell.onmouseenter = (event) => {
-                this._onMouseInHover(event);
-            };
+            const imageContainer = document.createElement("div");
+            imageContainer.classList.add("profile-image-cell");
+            imageContainer.style = `background-image : url(${image})`;
+            tableCell.append(imageContainer);
             tableRow.append(tableCell);
+        } else {
+            tableRow.append(this._createTableCell("No Image Here"));
         }
+
+        tableRow.append(this._createTableCell(data.firstName));
+        tableRow.append(this._createTableCell(data.lastName));
+        tableRow.append(this._createTableCell(data.email));
+        tableRow.append(this._createTableCell(data.sex));
+        tableRow.append(this._createTableCell(moment(data.dateOfBirth).format('LL')));
+
+        tableRow.id = id;
+
         const deleteCell = document.createElement("td");
         deleteCell.classList.add("table-cell");
         const deleteButton = document.createElement("button");
         deleteButton.onclick = () => {
-            this._deleteEmployee(data.id);
-            this._deleteEmployeeImage(data.id);
+            this._deleteEmployee(id);
+            // this._deleteEmployeeImage(data.id);
         };
         deleteButton.innerText = "X";
         deleteCell.append(deleteButton);
         tableRow.append(deleteCell);
         return tableRow;
+    }
+
+    _createTableCell(text) {
+        const tableCell = document.createElement("td");
+        tableCell.classList.add("tabble-cell");
+        tableCell.innerText = text;
+        tableCell.onmousemove = (event) => {
+            this._onMouseOverHover(event);
+        };
+        tableCell.onmouseout = (event) => {
+            this._onMouseOutHover(event);
+        };
+        tableCell.onmouseenter = (event) => {
+            this._onMouseInHover(event);
+        };
+        return tableCell;
     }
 
     createFormSection(headerNames) {
@@ -457,8 +516,13 @@ class CMS extends HTMLElement {
         jsonObject.sex = sex;
         jsonObject.dateOfBirth = dateOfBirth;
         jsonObject.profileImage = profileImage;
-        db.collection('employees').add(jsonObject).then((succes) => {
+        this.data.push(jsonObject);
+        db.collection('employees').add(jsonObject).then((success) => {
                 console.log('Data uploaded');
+                let dataToRender = {};
+                dataToRender.id = success.id;
+                dataToRender.data = jsonObject;
+                this.table.append(this.createTableRow(dataToRender));
             })
             .catch(error => {
                 this.createErrorMessage(error);
@@ -474,18 +538,29 @@ class CMS extends HTMLElement {
 
     _deleteEmployee(id) {
         console.log("Delete employee with id: " + id);
-        let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
-        dataFromDataBase = JSON.parse(dataFromDataBase);
-        let indexOfDeleted = dataFromDataBase.findIndex((element) => {
-            if (element.id === id) {
-                return true;
-            }
+        db.collection('employees').doc(id).delete().then(() => {
+            console.log("Document successfully deleted!");
+            this.table.removeChild(document.getElementById(id));
+            this.data = this.data.filter(function(obj) {
+                return obj.id !== id;
+            });
+            console.log(data);
+
+        }).catch(error => {
+            this.createErrorMessage(error);
         });
-        this.table.removeChild(this.table.childNodes[indexOfDeleted + 1]);
-        dataFromDataBase = dataFromDataBase.filter(function(obj) {
-            return obj.id !== id;
-        });
-        this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
+        // let dataFromDataBase = this.myStorage.getItem(this.dataBaseKey);
+        // dataFromDataBase = JSON.parse(dataFromDataBase);
+        // let indexOfDeleted = dataFromDataBase.findIndex((element) => {
+        //     if (element.id === id) {
+        //         return true;
+        //     }
+        // });
+        // this.table.removeChild(this.table.childNodes[indexOfDeleted + 1]);
+        // dataFromDataBase = dataFromDataBase.filter(function(obj) {
+        //     return obj.id !== id;
+        // });
+        // this.myStorage.setItem(this.dataBaseKey, JSON.stringify(dataFromDataBase));
     }
 
     _deleteEmployeeImage(id) {
