@@ -113,15 +113,26 @@ class CMS extends HTMLElement {
         searchByKeyWordInput.placeholder = "Write here..";
         searchByKeyWordInput.name = "keyword";
         searchByKeyWordInput.addEventListener('input', () => {
-            let tempData = [...this.filteredData];
-            let filteredData = [];
-            for (let x of tempData) {
-                let tempText = x.data;
-                if ((tempText.email.includes(searchByKeyWordInput.value)) || (tempText.firstName.includes(searchByKeyWordInput.value)) || (tempText.lastName.includes(searchByKeyWordInput.value))) {
-                    filteredData.push(x);
+            db.collection('employees').get().then((querySnapshot) => {
+                let tempData = [];
+                querySnapshot.forEach((doc) => {
+                    let temp = {};
+                    temp.id = doc.id;
+                    temp.data = doc.data();
+                    tempData.push(temp);
+                });
+                let filteredData = [];
+                for (let x of tempData) {
+                    let tempText = x.data;
+                    if ((tempText.email.includes(searchByKeyWordInput.value)) || (tempText.firstName.includes(searchByKeyWordInput.value)) || (tempText.lastName.includes(searchByKeyWordInput.value))) {
+                        filteredData.push(x);
+                    }
                 }
-            }
-            this._reRender(filteredData);
+                this._reRender(filteredData);
+            }).catch(error => {
+                console.log(error);
+            });
+
         });
         filtersContainer.append(labelForKeyword, searchByKeyWordInput);
 
@@ -143,31 +154,59 @@ class CMS extends HTMLElement {
         sexFilter.append(everySex, maleSex, femaleSex);
         sexFilter.onchange = () => {
             if (sexFilter.value === 'every') {
-                this._reRender(this.data);
+                db.collection('employees')
+                    .get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        this._reRender(tempData);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
                 return;
             }
             if (sexFilter.value === 'female') {
-                let tempData = [...this.data];
-                let tempFilteredData = [];
-                for (let x of tempData) {
-                    let tempObj = x.data;
-                    if (tempObj.sex === "Female") {
-                        tempFilteredData.push(x);
-                    }
-                }
-                this._reRender(tempFilteredData);
+                db.collection('employees')
+                    .where("sex", "==", "Female")
+                    .get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        this._reRender(tempData);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    })
                 return;
             }
             if (sexFilter.value === 'male') {
-                let tempData = [...this.data];
-                let tempFilteredData = [];
-                for (let x of tempData) {
-                    let tempObj = x.data;
-                    if (tempObj.sex === "Male") {
-                        tempFilteredData.push(x);
-                    }
-                }
-                this._reRender(tempFilteredData);
+                db.collection('employees')
+                    .where("sex", "==", "Male")
+                    .get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        this._reRender(tempData);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    })
                 return;
             }
         };
@@ -190,31 +229,58 @@ class CMS extends HTMLElement {
         hasProfilePicture.append(everyProfilePicture, onlyWhoHasProfilePicture, doNotHave);
         hasProfilePicture.onchange = () => {
             if (hasProfilePicture.value === "every") {
-                this._reRender(this.data);
+                db.collection('employees').get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        this._reRender(tempData);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
                 return;
             }
             if (hasProfilePicture.value === "has") {
-                let tempData = [...this.data];
-                let tempFilteredData = [];
-                for (let x of tempData) {
-                    let tempObj = x.data;
-                    if (tempObj.profileImage !== this.defaultImage) {
-                        tempFilteredData.push(x);
-                    }
-                }
-                this._reRender(tempFilteredData);
+                db.collection('employees')
+                    .where("profileImage", "!=", defaultImage)
+                    .get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        this._reRender(tempData);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
                 return;
             }
             if (hasProfilePicture.value === "no") {
-                let tempData = [...this.data];
-                let tempFilteredData = [];
-                for (let x of tempData) {
-                    let tempObj = x.data;
-                    if (tempObj.profileImage == this.defaultImage) {
-                        tempFilteredData.push(x);
-                    }
-                }
-                this._reRender(tempFilteredData);
+                db.collection('employees')
+                    .where("profileImage", "==", defaultImage)
+                    .get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        this._reRender(tempData);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
                 return;
             }
         };
@@ -231,29 +297,53 @@ class CMS extends HTMLElement {
         startDate.onchange = () => {
             endDate.min = startDate.value;
             if (endDate.value) {
-                let tempData = [...this.data];
-                let filteredData = [];
-                for (let x of tempData) {
-                    let tempObj = x.data;
-                    if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
-                        filteredData.push(x);
-                    }
-                }
-                this._reRender(filteredData);
+                db.collection('employees').get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        let filteredData = [];
+                        for (let x of tempData) {
+                            let tempObj = x.data;
+                            if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
+                                filteredData.push(x);
+                            }
+                        }
+                        this._reRender(filteredData);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             }
         }
         endDate.onchange = () => {
             startDate.max = endDate.value;
             if (startDate.value) {
-                let tempData = [...this.data];
-                let filteredData = [];
-                for (let x of tempData) {
-                    let tempObj = x.data;
-                    if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
-                        filteredData.push(x);
-                    }
-                }
-                this._reRender(filteredData);
+                db.collection('employees').get()
+                    .then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        let filteredData = [];
+                        for (let x of tempData) {
+                            let tempObj = x.data;
+                            if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
+                                filteredData.push(x);
+                            }
+                        }
+                        this._reRender(filteredData);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             }
         }
         filtersContainer.append(labelForDates, startDate, endDate);
