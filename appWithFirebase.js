@@ -57,8 +57,10 @@ class CMS extends HTMLElement {
         this.filter = false;
         this.lastVisible = null;
         this.lastVisibleForPrev = null;
+        this.nextButton = null;
+        this.prevButton = null;
         this.next = null;
-        this.queryLimit = 2;
+        this.queryLimit = 4;
         this.previous = null;
         this.filters = {
             keyword: {
@@ -87,6 +89,7 @@ class CMS extends HTMLElement {
             next: "next",
             prev: "prev",
         }
+        this.pageCounter = 0;
     }
 
     connectedCallback() {
@@ -273,61 +276,6 @@ class CMS extends HTMLElement {
                         break;
                     }
             }
-            // if (hasProfilePicture.value === "every") {
-            //     db.collection('employees').get()
-            //         .then((querySnapshot) => {
-            //             let tempData = [];
-            //             querySnapshot.forEach((doc) => {
-            //                 let temp = {};
-            //                 temp.id = doc.id;
-            //                 temp.data = doc.data();
-            //                 tempData.push(temp);
-            //             });
-            //             this._reRender(tempData);
-            //         })
-            //         .catch(error => {
-            //             console.log(error);
-            //         })
-            //     return;
-            // }
-            // if (hasProfilePicture.value === "has") {
-            //     db.collection('employees')
-            //         .where("profileImage", "!=", defaultImage)
-            //         .get()
-            //         .then((querySnapshot) => {
-            //             let tempData = [];
-            //             querySnapshot.forEach((doc) => {
-            //                 let temp = {};
-            //                 temp.id = doc.id;
-            //                 temp.data = doc.data();
-            //                 tempData.push(temp);
-            //             });
-            //             this._reRender(tempData);
-            //         })
-            //         .catch((error) => {
-            //             console.log(error);
-            //         });
-            //     return;
-            // }
-            // if (hasProfilePicture.value === "no") {
-            //     db.collection('employees')
-            //         .where("profileImage", "==", defaultImage)
-            //         .get()
-            //         .then((querySnapshot) => {
-            //             let tempData = [];
-            //             querySnapshot.forEach((doc) => {
-            //                 let temp = {};
-            //                 temp.id = doc.id;
-            //                 temp.data = doc.data();
-            //                 tempData.push(temp);
-            //             });
-            //             this._reRender(tempData);
-            //         })
-            //         .catch((error) => {
-            //             console.log(error);
-            //         });
-            //     return;
-            // }
             let query = this.__createQuerry(this.queryTypes.normal);
             query.get().then((querySnapshot) => {
                     this.__handleQuerySnapshot(querySnapshot);
@@ -414,6 +362,8 @@ class CMS extends HTMLElement {
     }
 
     __handleQuerySnapshot(querySnapshot) {
+        this.prevButton.disabled = true;
+        this.pageCounter = 0;
         let tempData = [];
         querySnapshot.forEach((doc) => {
             let temp = {};
@@ -421,6 +371,9 @@ class CMS extends HTMLElement {
             temp.data = doc.data();
             tempData.push(temp);
         });
+        if (tempData.length < this.queryLimit) {
+            this.nextButton.disabled = true;
+        }
         this.__actualizeNext(querySnapshot);
         this.__actualizePrev(querySnapshot);
         this._reRender(tempData);
@@ -434,6 +387,10 @@ class CMS extends HTMLElement {
         nextPage.classList.add('pagination-next-page-button');
         nextPage.innerHTML = `<i class="fas fa-arrow-right"></i>`;
         nextPage.onclick = () => {
+            this.pageCounter++;
+            if (this.pageCounter > 0 && this.prevButton.disabled) {
+                this.prevButton.disabled = false;
+            }
             this.next.get().then((querySnapshot) => {
                     this.data = [];
                     querySnapshot.forEach((doc) => {
@@ -442,6 +399,9 @@ class CMS extends HTMLElement {
                         temp.data = doc.data();
                         this.data.push(temp);
                     });
+                    if (this.data.length < this.queryLimit) {
+                        this.nextButton.disabled = true;
+                    }
                     this.__actualizeNext(querySnapshot);
                     this.__actualizePrev(querySnapshot);
                     this._reRender();
@@ -450,11 +410,19 @@ class CMS extends HTMLElement {
                     console.log(error);
                 });
         };
+        this.nextButton = nextPage;
         const prevPage = document.createElement('button');
         prevPage.classList.add('pagination-button');
         prevPage.classList.add("pagination-next-page-button")
         prevPage.innerHTML = `<i class="fas fa-arrow-left"></i>`;
         prevPage.onclick = () => {
+            this.pageCounter--;
+            if (this.nextButton.disabled) {
+                this.nextButton.disabled = false;
+            }
+            if (this.pageCounter === 0) {
+                this.prevButton.disabled = true;
+            }
             this.prev.get().then((querySnapshot) => {
                     this.data = [];
                     querySnapshot.forEach((doc) => {
@@ -471,6 +439,8 @@ class CMS extends HTMLElement {
                     console.log(error);
                 });
         };
+        this.prevButton = prevPage;
+        this.prevButton.disabled = true;
         buttonContainer.append(prevPage, nextPage);
         return buttonContainer;
     }
