@@ -58,8 +58,35 @@ class CMS extends HTMLElement {
         this.lastVisible = null;
         this.lastVisibleForPrev = null;
         this.next = null;
-        this.queryLimit = 6;
+        this.queryLimit = 2;
         this.previous = null;
+        this.filters = {
+            keyword: {
+                isActive: false,
+                value: null,
+            },
+            sex: {
+                isActive: false,
+                value: null,
+            },
+            hasProfilePicture: {
+                isActive: false,
+                value: null,
+            },
+            bornBetween: {
+                isActive: false,
+                value: {
+                    start: null,
+                    end: null,
+                }
+            }
+        };
+        this.dataQuerry = null;
+        this.queryTypes = {
+            normal: "normal",
+            next: "next",
+            prev: "prev",
+        }
     }
 
     connectedCallback() {
@@ -120,6 +147,13 @@ class CMS extends HTMLElement {
         searchByKeyWordInput.placeholder = "Write here..";
         searchByKeyWordInput.name = "keyword";
         searchByKeyWordInput.addEventListener('input', () => {
+            if (searchByKeyWordInput.value) {
+                this.filters.keyword.isActive = true;
+                this.filters.keyword.value = searchByKeyWordInput.value;
+            } else {
+                this.filters.keyword.isActive = false;
+                this.filters.keyword.value = null;
+            }
             db.collection('employees').get().then((querySnapshot) => {
                 let tempData = [];
                 querySnapshot.forEach((doc) => {
@@ -160,61 +194,41 @@ class CMS extends HTMLElement {
         sexFilter.append(everySex, maleSex, femaleSex);
         sexFilter.onchange = () => {
             if (sexFilter.value === 'every') {
-                db.collection('employees')
-                    .get()
-                    .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        this._reRender(tempData);
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    });
-                return;
+                this.filters.sex.isActive = false;
+                this.filters.sex.value = null;
+            } else {
+
             }
-            if (sexFilter.value === 'female') {
-                db.collection('employees')
-                    .where("sex", "==", "Female")
-                    .get()
-                    .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        this._reRender(tempData);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    })
-                return;
+            switch (sexFilter.value) {
+                case "every":
+                    {
+                        if (this.filters.sex.isActive) {
+                            this.filters.sex.isActive = false;
+                            this.filters.sex.value = null;
+                        }
+                        break;
+                    }
+                case "female":
+                    {
+                        if (!this.filters.sex.isActive) {
+                            this.filters.sex.isActive = true;
+                        }
+                        this.filters.sex.value = 'Female';
+                        break;
+                    }
+                case "male":
+                    {
+                        if (!this.filters.sex.isActive) {
+                            this.filters.sex.isActive = true;
+                        }
+                        this.filters.sex.value = 'Male';
+                        break;
+                    }
             }
-            if (sexFilter.value === 'male') {
-                db.collection('employees')
-                    .where("sex", "==", "Male")
-                    .get()
-                    .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        this._reRender(tempData);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    })
-                return;
-            }
+            let query = this.__createQuerry(this.queryTypes.normal);
+            query.get().then((querySnapshot) => {
+                this.__handleQuerySnapshot(querySnapshot);
+            });
         };
         filtersContainer.append(labelForSex, sexFilter);
         const labelForProfilePicture = document.createElement('label');
@@ -234,6 +248,30 @@ class CMS extends HTMLElement {
         doNotHave.innerText = "Do not have";
         hasProfilePicture.append(everyProfilePicture, onlyWhoHasProfilePicture, doNotHave);
         hasProfilePicture.onchange = () => {
+            switch (hasProfilePicture.value) {
+                case "every":
+                    {
+                        this.filters.hasProfilePicture.isActive = false;
+                        this.filters.hasProfilePicture.value = null;
+                        break;
+                    }
+                case 'has':
+                    {
+                        if (!this.filters.hasProfilePicture.isActive) {
+                            this.filters.hasProfilePicture.isActive = true;
+                        }
+                        this.filters.hasProfilePicture.value = hasProfilePicture.value;
+                        break;
+                    }
+                case 'no':
+                    {
+                        if (!this.filters.hasProfilePicture.isActive) {
+                            this.filters.hasProfilePicture.isActive = true;
+                        }
+                        this.filters.hasProfilePicture.value = hasProfilePicture.value;
+                        break;
+                    }
+            }
             if (hasProfilePicture.value === "every") {
                 db.collection('employees').get()
                     .then((querySnapshot) => {
@@ -367,6 +405,19 @@ class CMS extends HTMLElement {
         return container;
     }
 
+    __handleQuerySnapshot(querySnapshot) {
+        let tempData = [];
+        querySnapshot.forEach((doc) => {
+            let temp = {};
+            temp.id = doc.id;
+            temp.data = doc.data();
+            tempData.push(temp);
+        });
+        this.__actualizeNext(querySnapshot);
+        this.__actualizePrev(querySnapshot);
+        this._reRender(tempData);
+    }
+
     _createPaginationButton() {
         const buttonContainer = document.createElement('div');
         buttonContainer.classList.add('pagination-button-container');
@@ -418,12 +469,12 @@ class CMS extends HTMLElement {
 
     __actualizeNext(data) {
         this.lastVisible = data.docs[data.docs.length - 1];
-        this.next = db.collection('employees').orderBy('lastName').startAfter(this.lastVisible).limit(this.queryLimit);
+        this.next = this.__createQuerry(this.queryTypes.next, this.lastVisible);
     }
 
     __actualizePrev(data) {
         this.lastVisibleForPrev = data.docs[0];
-        this.prev = db.collection('employees').orderBy('lastName').endBefore(this.lastVisibleForPrev).limitToLast(this.queryLimit);
+        this.prev = this.__createQuerry(this.queryTypes.prev, this.lastVisibleForPrev);
     }
     createToolTip() {
         const tooltip = document.createElement("div");
@@ -822,6 +873,43 @@ class CMS extends HTMLElement {
                 this.table.append(this.createTableRow(element));
             });
         }
+    }
+
+
+    __createQuerry(queryType, param) {
+        let query = db.collection('employees');
+        if (this.filters.sex.isActive) {
+            query = query.where('sex', "==", this.filters.sex.value);
+        }
+        query = query.orderBy('lastName');
+        switch (queryType) {
+            case this.queryTypes.next:
+                {
+                    if (!param) {
+                        console.error("There is no parameter!")
+                        return;
+                    }
+                    query = query.startAfter(param);
+                    query = query.limit(this.queryLimit);
+                    break;
+                }
+            case this.queryTypes.prev:
+                {
+                    if (!param) {
+                        console.error("There is no parameter!")
+                        return;
+                    }
+                    query = query.endBefore(param);
+                    query = query.limitToLast(this.queryLimit);
+                    break;
+                }
+            case this.queryTypes.normal:
+                {
+                    query = query.limit(this.queryLimit);
+                    break;
+                }
+        }
+        return query;
     }
 
 }
