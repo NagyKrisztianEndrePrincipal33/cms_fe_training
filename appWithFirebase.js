@@ -55,17 +55,24 @@ class CMS extends HTMLElement {
         };
         this.data = [];
         this.filter = false;
+        this.lastVisible = null;
+        this.lastVisibleForPrev = null;
+        this.next = null;
+        this.queryLimit = 6;
+        this.previous = null;
     }
 
     connectedCallback() {
         console.log("CMS connected!");
-        db.collection('employees').get().then((querySnapshot) => {
+        let first = db.collection('employees').orderBy('lastName').limit(this.queryLimit);
+        first.get().then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     let temp = {};
                     temp.id = doc.id;
                     temp.data = doc.data();
                     this.data.push(temp);
                 });
+                this.__actualizeNext(querySnapshot);
                 this.render();
             })
             .catch(error => {
@@ -91,7 +98,7 @@ class CMS extends HTMLElement {
         this.tooltip = this.createToolTip();
         const tableContainer = document.createElement("div");
         tableContainer.classList.add("table-container");
-        tableContainer.append(this.createFilters(), this.table);
+        tableContainer.append(this.createFilters(), this.table, this._createPaginationButton());
         this.append(tableContainer);
         this.append(this.tooltip);
     }
@@ -135,7 +142,6 @@ class CMS extends HTMLElement {
 
         });
         filtersContainer.append(labelForKeyword, searchByKeyWordInput);
-
         const labelForSex = document.createElement('label');
         labelForSex.for = "sexFilter";
         labelForSex.innerText = "Sex: ";
@@ -361,6 +367,64 @@ class CMS extends HTMLElement {
         return container;
     }
 
+    _createPaginationButton() {
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('pagination-button-container');
+        const nextPage = document.createElement('button');
+        nextPage.classList.add('pagination-button');
+        nextPage.classList.add('pagination-next-page-button');
+        nextPage.innerHTML = `<i class="fas fa-arrow-right"></i>`;
+        nextPage.onclick = () => {
+            this.next.get().then((querySnapshot) => {
+                    this.data = [];
+                    querySnapshot.forEach((doc) => {
+                        let temp = {};
+                        temp.id = doc.id;
+                        temp.data = doc.data();
+                        this.data.push(temp);
+                    });
+                    this.__actualizeNext(querySnapshot);
+                    this.__actualizePrev(querySnapshot);
+                    this._reRender();
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        };
+        const prevPage = document.createElement('button');
+        prevPage.classList.add('pagination-button');
+        prevPage.classList.add("pagination-next-page-button")
+        prevPage.innerHTML = `<i class="fas fa-arrow-left"></i>`;
+        prevPage.onclick = () => {
+            this.prev.get().then((querySnapshot) => {
+                    this.data = [];
+                    querySnapshot.forEach((doc) => {
+                        let temp = {};
+                        temp.id = doc.id;
+                        temp.data = doc.data();
+                        this.data.push(temp);
+                    });
+                    this.__actualizeNext(querySnapshot);
+                    this.__actualizePrev(querySnapshot);
+                    this._reRender();
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        };
+        buttonContainer.append(prevPage, nextPage);
+        return buttonContainer;
+    }
+
+    __actualizeNext(data) {
+        this.lastVisible = data.docs[data.docs.length - 1];
+        this.next = db.collection('employees').orderBy('lastName').startAfter(this.lastVisible).limit(this.queryLimit);
+    }
+
+    __actualizePrev(data) {
+        this.lastVisibleForPrev = data.docs[0];
+        this.prev = db.collection('employees').orderBy('lastName').endBefore(this.lastVisibleForPrev).limitToLast(this.queryLimit);
+    }
     createToolTip() {
         const tooltip = document.createElement("div");
         tooltip.classList.add("tooltip");
