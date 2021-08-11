@@ -227,8 +227,9 @@ class CMS extends HTMLElement {
             }
             let query = this.__createQuerry(this.queryTypes.normal);
             query.get().then((querySnapshot) => {
-                this.__handleQuerySnapshot(querySnapshot);
-            });
+                    this.__handleQuerySnapshot(querySnapshot);
+                })
+                .catch(error => { console.log(error); });
         };
         filtersContainer.append(labelForSex, sexFilter);
         const labelForProfilePicture = document.createElement('label');
@@ -272,61 +273,68 @@ class CMS extends HTMLElement {
                         break;
                     }
             }
-            if (hasProfilePicture.value === "every") {
-                db.collection('employees').get()
-                    .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        this._reRender(tempData);
-                    })
-                    .catch(error => {
-                        console.log(error);
-                    })
-                return;
-            }
-            if (hasProfilePicture.value === "has") {
-                db.collection('employees')
-                    .where("profileImage", "!=", defaultImage)
-                    .get()
-                    .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        this._reRender(tempData);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
-                return;
-            }
-            if (hasProfilePicture.value === "no") {
-                db.collection('employees')
-                    .where("profileImage", "==", defaultImage)
-                    .get()
-                    .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        this._reRender(tempData);
-                    })
-                    .catch((error) => {
-                        console.log(error);
-                    });
-                return;
-            }
+            // if (hasProfilePicture.value === "every") {
+            //     db.collection('employees').get()
+            //         .then((querySnapshot) => {
+            //             let tempData = [];
+            //             querySnapshot.forEach((doc) => {
+            //                 let temp = {};
+            //                 temp.id = doc.id;
+            //                 temp.data = doc.data();
+            //                 tempData.push(temp);
+            //             });
+            //             this._reRender(tempData);
+            //         })
+            //         .catch(error => {
+            //             console.log(error);
+            //         })
+            //     return;
+            // }
+            // if (hasProfilePicture.value === "has") {
+            //     db.collection('employees')
+            //         .where("profileImage", "!=", defaultImage)
+            //         .get()
+            //         .then((querySnapshot) => {
+            //             let tempData = [];
+            //             querySnapshot.forEach((doc) => {
+            //                 let temp = {};
+            //                 temp.id = doc.id;
+            //                 temp.data = doc.data();
+            //                 tempData.push(temp);
+            //             });
+            //             this._reRender(tempData);
+            //         })
+            //         .catch((error) => {
+            //             console.log(error);
+            //         });
+            //     return;
+            // }
+            // if (hasProfilePicture.value === "no") {
+            //     db.collection('employees')
+            //         .where("profileImage", "==", defaultImage)
+            //         .get()
+            //         .then((querySnapshot) => {
+            //             let tempData = [];
+            //             querySnapshot.forEach((doc) => {
+            //                 let temp = {};
+            //                 temp.id = doc.id;
+            //                 temp.data = doc.data();
+            //                 tempData.push(temp);
+            //             });
+            //             this._reRender(tempData);
+            //         })
+            //         .catch((error) => {
+            //             console.log(error);
+            //         });
+            //     return;
+            // }
+            let query = this.__createQuerry(this.queryTypes.normal);
+            query.get().then((querySnapshot) => {
+                    this.__handleQuerySnapshot(querySnapshot);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         };
         filtersContainer.append(labelForProfilePicture, hasProfilePicture);
         const labelForDates = document.createElement('label');
@@ -880,6 +888,15 @@ class CMS extends HTMLElement {
         let query = db.collection('employees');
         if (this.filters.sex.isActive) {
             query = query.where('sex', "==", this.filters.sex.value);
+        }
+        if (this.filters.hasProfilePicture.isActive) {
+            if (this.filters.hasProfilePicture.value === "no") {
+                query = query.where("profileImage", "==", defaultImage);
+            }
+            if (this.filters.hasProfilePicture.value === "has") {
+                query = query.where("profileImage", "!=", defaultImage);
+                query = query.orderBy('profileImage');
+            }
         }
         query = query.orderBy('lastName');
         switch (queryType) {
