@@ -88,6 +88,7 @@ class CMS extends HTMLElement {
             normal: "normal",
             next: "next",
             prev: "prev",
+            nextChecker: "nextChecker",
         }
         this.pageCounter = 0;
     }
@@ -361,6 +362,29 @@ class CMS extends HTMLElement {
         return container;
     }
 
+    __checkIfThereIsMoreData() {
+        let query = this.__createQuerry(this.queryTypes.nextChecker, this.lastVisible);
+        console.log("Checking");
+        return query.get()
+            .then((querySnapshot) => {
+                let tempData = [];
+                querySnapshot.forEach((doc) => {
+                    let temp = {};
+                    temp.id = doc.id;
+                    temp.data = doc.data();
+                    tempData.push(temp);
+                });
+                let thereIsMore = true;
+                if (tempData.length === 0) {
+                    thereIsMore = false;
+                }
+                return thereIsMore;
+            }).catch(error => {
+                console.log(error);
+            });
+
+    }
+
     __handleQuerySnapshot(querySnapshot) {
         this.prevButton.disabled = true;
         this.pageCounter = 0;
@@ -375,8 +399,11 @@ class CMS extends HTMLElement {
             this.nextButton.disabled = true;
         }
         this.__actualizeNext(querySnapshot);
-        this.__actualizePrev(querySnapshot);
-        this._reRender(tempData);
+        this.__checkIfThereIsMoreData().then((thereIsMore) => {
+            this.nextButton.disabled = !thereIsMore;
+            this.__actualizePrev(querySnapshot);
+            this._reRender(tempData);
+        });
     }
 
     _createPaginationButton() {
@@ -403,8 +430,12 @@ class CMS extends HTMLElement {
                         this.nextButton.disabled = true;
                     }
                     this.__actualizeNext(querySnapshot);
-                    this.__actualizePrev(querySnapshot);
-                    this._reRender();
+                    this.__checkIfThereIsMoreData().then((thereIsMore) => {
+                        this.nextButton.disabled = !thereIsMore;
+                        this.__actualizePrev(querySnapshot);
+                        this._reRender();
+                    });
+
                 })
                 .catch((error) => {
                     console.log(error);
@@ -893,6 +924,16 @@ class CMS extends HTMLElement {
             case this.queryTypes.normal:
                 {
                     query = query.limit(this.queryLimit);
+                    break;
+                }
+            case this.queryTypes.nextChecker:
+                {
+                    if (!param) {
+                        console.error("There is no parameter!")
+                        return;
+                    }
+                    query = query.startAfter(param);
+                    query = query.limit(1);
                     break;
                 }
         }
