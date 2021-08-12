@@ -95,7 +95,11 @@ class CMS extends HTMLElement {
         this.sortByFeature = {
             isActive: false,
             value: null,
-        }
+        };
+        this.formTypes = {
+            addEmployee: "addEmployee",
+            editEmployee: "editEmployee",
+        };
 
     }
 
@@ -157,7 +161,7 @@ class CMS extends HTMLElement {
         searchByKeyWordInput.placeholder = "Write here..";
         searchByKeyWordInput.name = "keyword";
         searchByKeyWordInput.addEventListener('input', () => {
-            if (searchByKeyWordInput.value) {
+            if (searchByKeyWordInput.value && searchByKeyWordInput.value.length >= 3) {
                 this.filters.keyword.isActive = true;
                 this.filters.keyword.value = searchByKeyWordInput.value;
             } else {
@@ -404,7 +408,6 @@ class CMS extends HTMLElement {
         if (tempData.length < this.queryLimit) {
             this.nextButton.disabled = true;
         }
-        console.log(tempData);
         this.__actualizeNext(querySnapshot);
         this.__checkIfThereIsMoreData().then((thereIsMore) => {
                 this.nextButton.disabled = !thereIsMore;
@@ -588,8 +591,15 @@ class CMS extends HTMLElement {
         deleteButton.onclick = () => {
             this._deleteEmployee(id);
         };
-        deleteButton.innerText = "X";
+        deleteButton.innerHTML = `<i class="fas fa-user-minus"></i>`;
         deleteCell.append(deleteButton);
+        const editButton = document.createElement('button');
+        editButton.onclick = () => {
+            console.log("Edit employee with id: " + id);
+            this._editUser(id);
+        }
+        editButton.innerHTML = `<i class="fas fa-user-edit"></i>`;
+        deleteCell.append(editButton);
         tableRow.append(deleteCell);
         return tableRow;
     }
@@ -610,7 +620,7 @@ class CMS extends HTMLElement {
         return tableCell;
     }
 
-    __createDefaultFormField(element) {
+    __createDefaultFormField(element, value) {
         const div = document.createElement("div");
         div.classList.add("form-row");
         const label = document.createElement("label");
@@ -621,11 +631,14 @@ class CMS extends HTMLElement {
         input.required = true;
         input.type = "text";
         input.placeholder = element;
+        if (value) {
+            input.value = value;
+        }
         div.append(label, input);
         return div;
     }
 
-    __createSexFormField(element) {
+    __createSexFormField(element, value) {
         const div = document.createElement("div");
         div.classList.add("form-row");
         const label = document.createElement("label");
@@ -641,11 +654,14 @@ class CMS extends HTMLElement {
         female.value = "Female";
         female.innerText = "Female";
         select.append(male, female);
+        if (value) {
+            select.value = value;
+        }
         div.append(label, select);
         return div;
     }
 
-    __createDateOfBirthFormField(element) {
+    __createDateOfBirthFormField(element, value) {
         const div = document.createElement("div");
         div.classList.add("form-row");
         const label = document.createElement("label");
@@ -656,11 +672,14 @@ class CMS extends HTMLElement {
         input.type = "date";
         input.max = moment().format('YYYY-MM-DD');
         input.id = element.replace(/ /g, "");
+        if (value) {
+            input.value = value;
+        }
         div.append(label, input);
         return div;
     }
 
-    __createEmailFormField(element) {
+    __createEmailFormField(element, value) {
         const div = document.createElement("div");
         div.classList.add("form-row");
         const label = document.createElement("label");
@@ -671,6 +690,9 @@ class CMS extends HTMLElement {
         input.required = true;
         input.type = "email";
         input.placeholder = element;
+        if (value) {
+            input.value = value;
+        }
         div.append(label, input);
         return div;
     }
@@ -692,34 +714,38 @@ class CMS extends HTMLElement {
         return div;
     }
 
-    createFormSection(headerNames) {
+    createFormSection(formType, value) {
         const form = document.createElement("form");
         form.classList.add("styled-form");
         const headerDiv = document.createElement("div");
         headerDiv.classList.add("form-row");
 
         const h1 = document.createElement("h1");
-        h1.innerText = "Add a new employee to the list:";
+        if (formType === this.formTypes.editEmployee) {
+            h1.innerText = "Edit the employee:";
+        } else {
+            h1.innerText = "Add a new employee to the list:";
+        }
         headerDiv.append(h1);
         form.append(headerDiv);
-        form.append(this.__createDefaultFormField(this.elementNames.firstName));
-        form.append(this.__createDefaultFormField(this.elementNames.lastName));
-        form.append(this.__createEmailFormField(this.elementNames.email));
-        form.append(this.__createSexFormField(this.elementNames.sex));
-        form.append(this.__createDateOfBirthFormField(this.elementNames.dateOfBirth));
+        form.append(this.__createDefaultFormField(this.elementNames.firstName, value ? value.firstName : null));
+        form.append(this.__createDefaultFormField(this.elementNames.lastName, value ? value.lastName : null));
+        form.append(this.__createEmailFormField(this.elementNames.email, value ? value.email : null));
+        form.append(this.__createSexFormField(this.elementNames.sex, value ? value.sex : null));
+        form.append(this.__createDateOfBirthFormField(this.elementNames.dateOfBirth, value ? value.dateOfBirth : null));
         form.append(this.__createProfileImageFormField(this.elementNames.profileImage));
 
         const div = document.createElement("div");
         div.classList.add("form-row");
         const submit = document.createElement("input");
         submit.type = "submit";
-        form.onsubmit = (event) => this.saveDataOnClickSubmit(event);
+        form.onsubmit = (event) => this.saveDataOnClickSubmit(event, formType, value);
         div.append(submit);
         form.append(div);
         return form;
     }
 
-    saveDataOnClickSubmit(event) {
+    saveDataOnClickSubmit(event, formType, value) {
         event.preventDefault();
         console.log("Handling Data Saving");
         const textRegex = /^[a-zA-z ]*$/;
@@ -752,7 +778,7 @@ class CMS extends HTMLElement {
         let temp = this.data.filter(obj => {
             return obj.data.email === email;
         });
-        if (temp.length > 0) {
+        if (temp.length > 0 && formType === this.formTypes.addEmployee) {
             this.createErrorMessage('The employee with this email is allready in the table');
             return;
         }
@@ -761,11 +787,10 @@ class CMS extends HTMLElement {
             let imageName = imagePath.name;
             let storageRef = storage.ref('images/' + imageName);
             storageRef.put(imagePath).then((snapshot) => {
-                    console.log(snapshot);
                     if (snapshot.state === "success") {
                         snapshot.ref.getDownloadURL().then((url) => {
                                 let profileImage = url;
-                                this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage);
+                                this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage, formType, value);
                             })
                             .catch(error => {
                                 this.createErrorMessage(error);
@@ -780,12 +805,25 @@ class CMS extends HTMLElement {
                 });
         } else {
             let profileImage = defaultImage;
-            this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage);
+            if (formType === this.formTypes.editEmployee && value) {
+                profileImage = value.profileImage;
+            }
+            this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage, formType, value);
         }
 
     }
 
-    _saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage) {
+    _editUser(id) {
+        db.collection('employees').doc(id).get().then((querySnapshot) => {
+            let value = querySnapshot.data();
+            value.id = id;
+            this.form = this.createFormSection(this.formTypes.editEmployee, querySnapshot.data());
+            this.firstChild.innerHTML = "";
+            this.firstChild.append(this.form);
+        });
+    }
+
+    _saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage, formType, value) {
         const jsonObject = {};
         jsonObject.firstName = firstName;
         jsonObject.lastName = lastName;
@@ -793,18 +831,29 @@ class CMS extends HTMLElement {
         jsonObject.sex = sex;
         jsonObject.dateOfBirth = dateOfBirth;
         jsonObject.profileImage = profileImage;
-        db.collection('employees').add(jsonObject).then((success) => {
-                console.log('Data uploaded');
-                let dataToRender = {};
-                dataToRender.id = success.id;
-                dataToRender.data = jsonObject;
-                this.data.push(dataToRender);
-                this.table.append(this.createTableRow(dataToRender));
-                this.form.reset();
-            })
-            .catch(error => {
-                this.createErrorMessage(error);
-            });
+        if (formType === this.formTypes.editEmployee && value) {
+            db.collection('employees').doc(value.id).set(jsonObject).then((success) => {
+                    this.form = this.createFormSection(this.formTypes.addEmployee);
+                    this.firstChild.innerHTML = "";
+                    this.firstChild.append(this.form);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        } else {
+            db.collection('employees').add(jsonObject).then((success) => {
+                    console.log('Data uploaded');
+                    let dataToRender = {};
+                    dataToRender.id = success.id;
+                    dataToRender.data = jsonObject;
+                    this.data.push(dataToRender);
+                    this.table.append(this.createTableRow(dataToRender));
+                    this.form.reset();
+                })
+                .catch(error => {
+                    this.createErrorMessage(error);
+                });
+        }
     }
 
 
