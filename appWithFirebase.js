@@ -5,7 +5,7 @@ var firebaseConfig = {
     storageBucket: "contact-management-syste-a22c9.appspot.com",
     messagingSenderId: "309239271351",
     appId: "1:309239271351:web:7336060d79c5a47c85a232",
-    measurementId: "G-46HB65HQQD"
+    measurementId: "G-46HB65HQQD",
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -15,7 +15,8 @@ const storage = firebase.storage();
 
 let useFirebase = false;
 
-const defaultImage = "https://firebasestorage.googleapis.com/v0/b/contact-management-syste-a22c9.appspot.com/o/images%2FEmployee-Placeholder-Image-e1555622993894.jpg?alt=media&token=9d52a5eb-810b-4bd1-80b0-0c4335654b9b";
+const defaultImage =
+    "https://firebasestorage.googleapis.com/v0/b/contact-management-syste-a22c9.appspot.com/o/images%2FEmployee-Placeholder-Image-e1555622993894.jpg?alt=media&token=9d52a5eb-810b-4bd1-80b0-0c4335654b9b";
 
 moment.locale("ro");
 
@@ -31,7 +32,6 @@ class CMS extends HTMLElement {
             "Email",
             "Sex",
             "Date of birth",
-
         ];
         this.myStorage = window.localStorage;
         this.dataBaseKey = "Employees";
@@ -46,12 +46,12 @@ class CMS extends HTMLElement {
             dateOfBirth: "Date of birth",
         };
         this.selectors = {
-            firstName: 'Firstname',
-            lastName: 'Lastname',
-            email: 'Email',
-            sex: 'Sex',
-            dateOfBirth: 'Dateofbirth',
-            profileImage: 'ProfileImage'
+            firstName: "Firstname",
+            lastName: "Lastname",
+            email: "Email",
+            sex: "Sex",
+            dateOfBirth: "Dateofbirth",
+            profileImage: "ProfileImage",
         };
         this.data = [];
         this.filter = false;
@@ -75,13 +75,13 @@ class CMS extends HTMLElement {
                 isActive: false,
                 value: null,
             },
-            bornBetween: {
+            dateOfBirth: {
                 isActive: false,
                 value: {
                     start: null,
                     end: null,
-                }
-            }
+                },
+            },
         };
         this.dataQuerry = null;
         this.queryTypes = {
@@ -90,7 +90,7 @@ class CMS extends HTMLElement {
             prev: "prev",
             nextChecker: "nextChecker",
             sortBy: "sortBy",
-        }
+        };
         this.pageCounter = 0;
         this.sortByFeature = {
             isActive: false,
@@ -100,13 +100,17 @@ class CMS extends HTMLElement {
             addEmployee: "addEmployee",
             editEmployee: "editEmployee",
         };
-
     }
 
     connectedCallback() {
         console.log("CMS connected!");
-        let first = db.collection('employees').orderBy('lastName').limit(this.queryLimit);
-        first.get().then((querySnapshot) => {
+        let first = db
+            .collection("employees")
+            .orderBy("lastName")
+            .limit(this.queryLimit);
+        first
+            .get()
+            .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     let temp = {};
                     temp.id = doc.id;
@@ -116,7 +120,7 @@ class CMS extends HTMLElement {
                 this.__actualizeNext(querySnapshot);
                 this.render();
             })
-            .catch(error => {
+            .catch((error) => {
                 this.createErrorMessage(error);
                 console.log(error);
             });
@@ -139,80 +143,91 @@ class CMS extends HTMLElement {
         this.tooltip = this.createToolTip();
         const tableContainer = document.createElement("div");
         tableContainer.classList.add("table-container");
-        tableContainer.append(this.createFilters(), this.table, this._createPaginationButton());
+        tableContainer.append(
+            this.createFilters(),
+            this.table,
+            this._createPaginationButton()
+        );
         this.append(tableContainer);
         this.append(this.tooltip);
     }
 
     createFilters() {
         this.filteredData = [...this.data];
-        const container = document.createElement('div');
-        container.classList.add('filter-container');
-        const showFilters = document.createElement('p');
-        showFilters.innerText = 'Show filters';
+        const container = document.createElement("div");
+        container.classList.add("filter-container");
+        const showFilters = document.createElement("p");
+        showFilters.innerText = "Show filters";
         container.append(showFilters);
-        const filtersContainer = document.createElement('div');
-        filtersContainer.classList.add('real-filter-container');
-        const labelForKeyword = document.createElement('label');
+        const filtersContainer = document.createElement("div");
+        filtersContainer.classList.add("real-filter-container");
+        const labelForKeyword = document.createElement("label");
         labelForKeyword.for = "keyword";
         labelForKeyword.innerText = "Keyword: ";
-        const searchByKeyWordInput = document.createElement('input');
+        const searchByKeyWordInput = document.createElement("input");
         searchByKeyWordInput.type = "text";
         searchByKeyWordInput.placeholder = "Write here..";
         searchByKeyWordInput.name = "keyword";
-        searchByKeyWordInput.addEventListener('input', () => {
-            if (searchByKeyWordInput.value && searchByKeyWordInput.value.length >= 3) {
+        searchByKeyWordInput.addEventListener("input", () => {
+            if (
+                searchByKeyWordInput.value &&
+                searchByKeyWordInput.value.length >= 3
+            ) {
                 this.filters.keyword.isActive = true;
                 this.filters.keyword.value = searchByKeyWordInput.value;
             } else {
                 this.filters.keyword.isActive = false;
                 this.filters.keyword.value = null;
             }
-            db.collection('employees').get().then((querySnapshot) => {
-                let tempData = [];
-                querySnapshot.forEach((doc) => {
-                    let temp = {};
-                    temp.id = doc.id;
-                    temp.data = doc.data();
-                    tempData.push(temp);
-                });
-                let filteredData = [];
-                for (let x of tempData) {
-                    let tempText = x.data;
-                    if ((tempText.email.includes(searchByKeyWordInput.value)) || (tempText.firstName.includes(searchByKeyWordInput.value)) || (tempText.lastName.includes(searchByKeyWordInput.value))) {
-                        filteredData.push(x);
+            db.collection("employees")
+                .get()
+                .then((querySnapshot) => {
+                    let tempData = [];
+                    querySnapshot.forEach((doc) => {
+                        let temp = {};
+                        temp.id = doc.id;
+                        temp.data = doc.data();
+                        tempData.push(temp);
+                    });
+                    let filteredData = [];
+                    for (let x of tempData) {
+                        let tempText = x.data;
+                        if (
+                            tempText.email.includes(searchByKeyWordInput.value) ||
+                            tempText.firstName.includes(searchByKeyWordInput.value) ||
+                            tempText.lastName.includes(searchByKeyWordInput.value)
+                        ) {
+                            filteredData.push(x);
+                        }
                     }
-                }
-                this._reRender(filteredData);
-            }).catch(error => {
-                console.log(error);
-            });
-
+                    this._reRender(filteredData);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         });
         filtersContainer.append(labelForKeyword, searchByKeyWordInput);
-        const labelForSex = document.createElement('label');
+        const labelForSex = document.createElement("label");
         labelForSex.for = "sexFilter";
         labelForSex.innerText = "Sex: ";
-        const sexFilter = document.createElement('select');
+        const sexFilter = document.createElement("select");
         sexFilter.name = "sexFilter";
         sexFilter.id = "sexFilter";
-        const everySex = document.createElement('option');
+        const everySex = document.createElement("option");
         everySex.value = "every";
         everySex.innerText = "Every";
-        const maleSex = document.createElement('option');
+        const maleSex = document.createElement("option");
         maleSex.value = "male";
         maleSex.innerText = "Male";
-        const femaleSex = document.createElement('option');
+        const femaleSex = document.createElement("option");
         femaleSex.value = "female";
         femaleSex.innerText = "Female";
         sexFilter.append(everySex, maleSex, femaleSex);
         sexFilter.onchange = () => {
-            if (sexFilter.value === 'every') {
+            if (sexFilter.value === "every") {
                 this.filters.sex.isActive = false;
                 this.filters.sex.value = null;
-            } else {
-
-            }
+            } else {}
             switch (sexFilter.value) {
                 case "every":
                     {
@@ -227,7 +242,7 @@ class CMS extends HTMLElement {
                         if (!this.filters.sex.isActive) {
                             this.filters.sex.isActive = true;
                         }
-                        this.filters.sex.value = 'Female';
+                        this.filters.sex.value = "Female";
                         break;
                     }
                 case "male":
@@ -235,33 +250,41 @@ class CMS extends HTMLElement {
                         if (!this.filters.sex.isActive) {
                             this.filters.sex.isActive = true;
                         }
-                        this.filters.sex.value = 'Male';
+                        this.filters.sex.value = "Male";
                         break;
                     }
             }
             let query = this.__createQuerry(this.queryTypes.normal);
-            query.get().then((querySnapshot) => {
+            query
+                .get()
+                .then((querySnapshot) => {
                     this.__handleQuerySnapshot(querySnapshot);
                 })
-                .catch(error => { console.log(error); });
+                .catch((error) => {
+                    console.log(error);
+                });
         };
         filtersContainer.append(labelForSex, sexFilter);
-        const labelForProfilePicture = document.createElement('label');
-        labelForProfilePicture.for = 'filterForProfilePicture';
+        const labelForProfilePicture = document.createElement("label");
+        labelForProfilePicture.for = "filterForProfilePicture";
         labelForProfilePicture.innerText = "Has profile picture: ";
-        const hasProfilePicture = document.createElement('select');
-        hasProfilePicture.name = 'filterForProfilePicture';
-        hasProfilePicture.id = 'filterForProfilePicture';
-        const everyProfilePicture = document.createElement('option');
+        const hasProfilePicture = document.createElement("select");
+        hasProfilePicture.name = "filterForProfilePicture";
+        hasProfilePicture.id = "filterForProfilePicture";
+        const everyProfilePicture = document.createElement("option");
         everyProfilePicture.value = "every";
         everyProfilePicture.innerText = "Every";
-        const onlyWhoHasProfilePicture = document.createElement('option');
+        const onlyWhoHasProfilePicture = document.createElement("option");
         onlyWhoHasProfilePicture.value = "has";
         onlyWhoHasProfilePicture.innerText = "Has profile image";
-        const doNotHave = document.createElement('option');
+        const doNotHave = document.createElement("option");
         doNotHave.value = "no";
         doNotHave.innerText = "Do not have";
-        hasProfilePicture.append(everyProfilePicture, onlyWhoHasProfilePicture, doNotHave);
+        hasProfilePicture.append(
+            everyProfilePicture,
+            onlyWhoHasProfilePicture,
+            doNotHave
+        );
         hasProfilePicture.onchange = () => {
             switch (hasProfilePicture.value) {
                 case "every":
@@ -270,7 +293,7 @@ class CMS extends HTMLElement {
                         this.filters.hasProfilePicture.value = null;
                         break;
                     }
-                case 'has':
+                case "has":
                     {
                         if (!this.filters.hasProfilePicture.isActive) {
                             this.filters.hasProfilePicture.isActive = true;
@@ -278,7 +301,7 @@ class CMS extends HTMLElement {
                         this.filters.hasProfilePicture.value = hasProfilePicture.value;
                         break;
                     }
-                case 'no':
+                case "no":
                     {
                         if (!this.filters.hasProfilePicture.isActive) {
                             this.filters.hasProfilePicture.isActive = true;
@@ -288,94 +311,107 @@ class CMS extends HTMLElement {
                     }
             }
             let query = this.__createQuerry(this.queryTypes.normal);
-            query.get().then((querySnapshot) => {
+            query
+                .get()
+                .then((querySnapshot) => {
                     this.__handleQuerySnapshot(querySnapshot);
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.log(error);
                 });
         };
         filtersContainer.append(labelForProfilePicture, hasProfilePicture);
-        const labelForDates = document.createElement('label');
-        labelForDates.for = 'dates';
+        const labelForDates = document.createElement("label");
+        labelForDates.for = "dates";
         labelForDates.innerText = "Born between dates:";
-        const startDate = document.createElement('input');
-        startDate.type = 'date';
-        startDate.max = moment().format('YYYY-MM-DD');
-        const endDate = document.createElement('input');
-        endDate.type = 'date';
-        endDate.max = moment().format('YYYY-MM-DD');
+        const startDate = document.createElement("input");
+        startDate.type = "date";
+        startDate.max = moment().format("YYYY-MM-DD");
+        const endDate = document.createElement("input");
+        endDate.type = "date";
+        endDate.max = moment().format("YYYY-MM-DD");
         startDate.onchange = () => {
             endDate.min = startDate.value;
-            if (endDate.value) {
-                db.collection('employees').get()
+            this.filters.dateOfBirth.value.start = startDate.value;
+            if (this.filters.dateOfBirth.value.end) {
+                this.filters.dateOfBirth.isActive = true;
+                let query = this.__createQuerry(this.queryTypes.normal);
+                query
+                    .get()
                     .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        let filteredData = [];
-                        for (let x of tempData) {
-                            let tempObj = x.data;
-                            if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
-                                filteredData.push(x);
-                            }
-                        }
-                        this._reRender(filteredData);
+                        this.__handleQuerySnapshot(querySnapshot);
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         console.log(error);
                     });
             }
-        }
+        };
         endDate.onchange = () => {
             startDate.max = endDate.value;
-            if (startDate.value) {
-                db.collection('employees').get()
+            this.filters.dateOfBirth.value.end = endDate.value;
+            if (this.filters.dateOfBirth.value.start) {
+                this.filters.dateOfBirth.isActive = true;
+                let query = this.__createQuerry(this.queryTypes.normal);
+                query
+                    .get()
                     .then((querySnapshot) => {
-                        let tempData = [];
-                        querySnapshot.forEach((doc) => {
-                            let temp = {};
-                            temp.id = doc.id;
-                            temp.data = doc.data();
-                            tempData.push(temp);
-                        });
-                        let filteredData = [];
-                        for (let x of tempData) {
-                            let tempObj = x.data;
-                            if (moment(tempObj.dateOfBirth).isAfter(startDate.value) && moment(tempObj.dateOfBirth).isBefore(endDate.value)) {
-                                filteredData.push(x);
-                            }
-                        }
-                        this._reRender(filteredData);
+                        this.__handleQuerySnapshot(querySnapshot);
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         console.log(error);
                     });
             }
-        }
+        };
         filtersContainer.append(labelForDates, startDate, endDate);
+        const clearFilterButton = document.createElement("button");
+        clearFilterButton.classList.add("clear-filter-button");
+        clearFilterButton.innerText = "Clear filters";
+        clearFilterButton.onclick = () => {
+            console.log("Filters will be cleared!");
+            this.filters.keyword.isActive = false;
+            searchByKeyWordInput.value = "";
+            this.filters.sex.isActive = false;
+            sexFilter.value = "every";
+            this.filters.hasProfilePicture.isActive = false;
+            hasProfilePicture.value = "every";
+            this.filters.dateOfBirth.isActive = false;
+            startDate.value = "";
+            startDate.max = moment();
+            endDate.value = "";
+            endDate.min = "";
+            let query = this.__createQuerry(this.queryTypes.normal);
+            query
+                .get()
+                .then((querySnapshot) => {
+                    this.__handleQuerySnapshot(querySnapshot);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        };
+        filtersContainer.append(clearFilterButton);
         showFilters.onclick = () => {
             if (!this.filter) {
                 showFilters.innerText = "Unshow filters";
                 container.append(filtersContainer);
                 this.filter = true;
             } else {
-                showFilters.innerText = 'Show filters';
+                showFilters.innerText = "Show filters";
                 container.removeChild(filtersContainer);
                 this.filter = false;
             }
-        }
+        };
         return container;
     }
 
     __checkIfThereIsMoreData() {
-        let query = this.__createQuerry(this.queryTypes.nextChecker, this.lastVisible);
+        let query = this.__createQuerry(
+            this.queryTypes.nextChecker,
+            this.lastVisible
+        );
         console.log("Checking");
-        return query.get()
+        return query
+            .get()
             .then((querySnapshot) => {
                 let tempData = [];
                 querySnapshot.forEach((doc) => {
@@ -389,10 +425,10 @@ class CMS extends HTMLElement {
                     thereIsMore = false;
                 }
                 return thereIsMore;
-            }).catch(error => {
+            })
+            .catch((error) => {
                 console.log(error);
             });
-
     }
 
     __handleQuerySnapshot(querySnapshot) {
@@ -409,29 +445,32 @@ class CMS extends HTMLElement {
             this.nextButton.disabled = true;
         }
         this.__actualizeNext(querySnapshot);
-        this.__checkIfThereIsMoreData().then((thereIsMore) => {
+        this.__checkIfThereIsMoreData()
+            .then((thereIsMore) => {
                 this.nextButton.disabled = !thereIsMore;
                 this.__actualizePrev(querySnapshot);
                 this._reRender(tempData);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.log("Error in handling: " + error);
             });
     }
 
     _createPaginationButton() {
-        const buttonContainer = document.createElement('div');
-        buttonContainer.classList.add('pagination-button-container');
-        const nextPage = document.createElement('button');
-        nextPage.classList.add('pagination-button');
-        nextPage.classList.add('pagination-next-page-button');
+        const buttonContainer = document.createElement("div");
+        buttonContainer.classList.add("pagination-button-container");
+        const nextPage = document.createElement("button");
+        nextPage.classList.add("pagination-button");
+        nextPage.classList.add("pagination-next-page-button");
         nextPage.innerHTML = `<i class="fas fa-arrow-right"></i>`;
         nextPage.onclick = () => {
             this.pageCounter++;
             if (this.pageCounter > 0 && this.prevButton.disabled) {
                 this.prevButton.disabled = false;
             }
-            this.next.get().then((querySnapshot) => {
+            this.next
+                .get()
+                .then((querySnapshot) => {
                     this.data = [];
                     querySnapshot.forEach((doc) => {
                         let temp = {};
@@ -448,22 +487,22 @@ class CMS extends HTMLElement {
                         this.__actualizePrev(querySnapshot);
                         this._reRender();
                     });
-
                 })
                 .catch((error) => {
                     console.log(error);
                 });
         };
         this.nextButton = nextPage;
-        this.__checkIfThereIsMoreData().then((thereIsMore) => {
+        this.__checkIfThereIsMoreData()
+            .then((thereIsMore) => {
                 this.nextButton.disabled = !thereIsMore;
             })
-            .catch(error => {
+            .catch((error) => {
                 console.log(error);
             });
-        const prevPage = document.createElement('button');
-        prevPage.classList.add('pagination-button');
-        prevPage.classList.add("pagination-next-page-button")
+        const prevPage = document.createElement("button");
+        prevPage.classList.add("pagination-button");
+        prevPage.classList.add("pagination-next-page-button");
         prevPage.innerHTML = `<i class="fas fa-arrow-left"></i>`;
         prevPage.onclick = () => {
             this.pageCounter--;
@@ -473,7 +512,9 @@ class CMS extends HTMLElement {
             if (this.pageCounter === 0) {
                 this.prevButton.disabled = true;
             }
-            this.prev.get().then((querySnapshot) => {
+            this.prev
+                .get()
+                .then((querySnapshot) => {
                     this.data = [];
                     querySnapshot.forEach((doc) => {
                         let temp = {};
@@ -502,7 +543,10 @@ class CMS extends HTMLElement {
 
     __actualizePrev(data) {
         this.lastVisibleForPrev = data.docs[0];
-        this.prev = this.__createQuerry(this.queryTypes.prev, this.lastVisibleForPrev);
+        this.prev = this.__createQuerry(
+            this.queryTypes.prev,
+            this.lastVisibleForPrev
+        );
     }
     createToolTip() {
         const tooltip = document.createElement("div");
@@ -512,8 +556,8 @@ class CMS extends HTMLElement {
     }
 
     createErrorMessage(text) {
-        const errorDiv = document.createElement('div');
-        errorDiv.classList.add('errorPopup');
+        const errorDiv = document.createElement("div");
+        errorDiv.classList.add("errorPopup");
         errorDiv.innerHTML = text;
         this.append(errorDiv);
         setTimeout(() => {
@@ -528,7 +572,7 @@ class CMS extends HTMLElement {
         wrapper.classList.add("table-header-cell");
         const text = document.createElement("p");
         if (element !== this.elementNames.profileImage) {
-            text.classList.add('clickable');
+            text.classList.add("clickable");
             text.onclick = (event) => {
                 this._sortByColumn(event.target.innerText);
             };
@@ -543,17 +587,21 @@ class CMS extends HTMLElement {
         const tableRow = document.createElement("tr");
         tableRow.classList.add("table-header-row");
 
-        tableRow.append(this.__createTableHeaderCell(this.elementNames.profileImage));
+        tableRow.append(
+            this.__createTableHeaderCell(this.elementNames.profileImage)
+        );
         tableRow.append(this.__createTableHeaderCell(this.elementNames.firstName));
         tableRow.append(this.__createTableHeaderCell(this.elementNames.lastName));
         tableRow.append(this.__createTableHeaderCell(this.elementNames.email));
         tableRow.append(this.__createTableHeaderCell(this.elementNames.sex));
-        tableRow.append(this.__createTableHeaderCell(this.elementNames.dateOfBirth));
+        tableRow.append(
+            this.__createTableHeaderCell(this.elementNames.dateOfBirth)
+        );
 
         const tableHeader = document.createElement("th");
         tableHeader.classList.add("table-cell");
         const text = document.createElement("p");
-        text.innerText = "Delete Employee";
+        text.innerText = "Actions";
         tableHeader.append(text);
         tableRow.append(tableHeader);
         return tableRow;
@@ -581,7 +629,9 @@ class CMS extends HTMLElement {
         tableRow.append(this._createTableCell(data.lastName));
         tableRow.append(this._createTableCell(data.email));
         tableRow.append(this._createTableCell(data.sex));
-        tableRow.append(this._createTableCell(moment(data.dateOfBirth).format('LL')));
+        tableRow.append(
+            this._createTableCell(moment(data.dateOfBirth).format("LL"))
+        );
 
         tableRow.id = id;
 
@@ -593,11 +643,11 @@ class CMS extends HTMLElement {
         };
         deleteButton.innerHTML = `<i class="fas fa-user-minus"></i>`;
         deleteCell.append(deleteButton);
-        const editButton = document.createElement('button');
+        const editButton = document.createElement("button");
         editButton.onclick = () => {
             console.log("Edit employee with id: " + id);
             this._editUser(id);
-        }
+        };
         editButton.innerHTML = `<i class="fas fa-user-edit"></i>`;
         deleteCell.append(editButton);
         tableRow.append(deleteCell);
@@ -670,7 +720,7 @@ class CMS extends HTMLElement {
         const input = document.createElement("input");
         input.required = true;
         input.type = "date";
-        input.max = moment().format('YYYY-MM-DD');
+        input.max = moment().format("YYYY-MM-DD");
         input.id = element.replace(/ /g, "");
         if (value) {
             input.value = value;
@@ -728,21 +778,46 @@ class CMS extends HTMLElement {
         }
         headerDiv.append(h1);
         form.append(headerDiv);
-        form.append(this.__createDefaultFormField(this.elementNames.firstName, value ? value.firstName : null));
-        form.append(this.__createDefaultFormField(this.elementNames.lastName, value ? value.lastName : null));
-        form.append(this.__createEmailFormField(this.elementNames.email, value ? value.email : null));
-        form.append(this.__createSexFormField(this.elementNames.sex, value ? value.sex : null));
-        form.append(this.__createDateOfBirthFormField(this.elementNames.dateOfBirth, value ? value.dateOfBirth : null));
-        form.append(this.__createProfileImageFormField(this.elementNames.profileImage));
+        form.append(
+            this.__createDefaultFormField(
+                this.elementNames.firstName,
+                value ? value.firstName : null
+            )
+        );
+        form.append(
+            this.__createDefaultFormField(
+                this.elementNames.lastName,
+                value ? value.lastName : null
+            )
+        );
+        form.append(
+            this.__createEmailFormField(
+                this.elementNames.email,
+                value ? value.email : null
+            )
+        );
+        form.append(
+            this.__createSexFormField(this.elementNames.sex, value ? value.sex : null)
+        );
+        form.append(
+            this.__createDateOfBirthFormField(
+                this.elementNames.dateOfBirth,
+                value ? value.dateOfBirth : null
+            )
+        );
+        form.append(
+            this.__createProfileImageFormField(this.elementNames.profileImage)
+        );
 
         const div = document.createElement("div");
         div.classList.add("form-row");
         const submit = document.createElement("input");
         submit.type = "submit";
-        form.onsubmit = (event) => this.saveDataOnClickSubmit(event, formType, value);
+        form.onsubmit = (event) =>
+            this.saveDataOnClickSubmit(event, formType, value);
         if (formType === this.formTypes.editEmployee) {
-            const cancel = document.createElement('button');
-            cancel.classList.add('edit-employee-cancel-button');
+            const cancel = document.createElement("button");
+            cancel.classList.add("edit-employee-cancel-button");
             cancel.innerText = "Cancel";
             cancel.onclick = (event) => {
                 event.preventDefault();
@@ -762,17 +837,24 @@ class CMS extends HTMLElement {
         event.preventDefault();
         console.log("Handling Data Saving");
         const textRegex = /^[a-zA-z ]*$/;
-        let firstName = this.form.querySelector(`#${this.selectors.firstName}`).value;
+        let firstName = this.form.querySelector(
+            `#${this.selectors.firstName}`
+        ).value;
         if (!textRegex.test(firstName)) {
-            this.createErrorMessage('The firstname field should contain only letters!');
+            this.createErrorMessage(
+                "The firstname field should contain only letters!"
+            );
             return;
         }
         let lastName = this.form.querySelector(`#${this.selectors.lastName}`).value;
         if (!textRegex.test(lastName)) {
-            this.createErrorMessage("The lastname field should contain only letters!");
+            this.createErrorMessage(
+                "The lastname field should contain only letters!"
+            );
             return;
         }
-        const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        const emailRegex =
+            /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         let email = this.form.querySelector(`#${this.selectors.email}`).value;
         if (!emailRegex.test(email)) {
             this.createErrorMessage("The email field should contain a real email!");
@@ -783,29 +865,47 @@ class CMS extends HTMLElement {
             this.createErrorMessage("The sex value should be selected!");
             return;
         }
-        let dateOfBirth = this.form.querySelector(`#${this.selectors.dateOfBirth}`).value;
+        let dateOfBirth = this.form.querySelector(
+            `#${this.selectors.dateOfBirth}`
+        ).value;
         if (!dateOfBirth) {
             this.createErrorMessage("The date of birth should be selected!");
             return;
         }
-        let temp = this.data.filter(obj => {
+        let temp = this.data.filter((obj) => {
             return obj.data.email === email;
         });
         if (temp.length > 0 && formType === this.formTypes.addEmployee) {
-            this.createErrorMessage('The employee with this email is allready in the table');
+            this.createErrorMessage(
+                "The employee with this email is allready in the table"
+            );
             return;
         }
-        let imagePath = this.form.querySelector(`#${this.selectors.profileImage}`).files[0];
+        let imagePath = this.form.querySelector(`#${this.selectors.profileImage}`)
+            .files[0];
         if (imagePath) {
             let imageName = imagePath.name;
-            let storageRef = storage.ref('images/' + imageName);
-            storageRef.put(imagePath).then((snapshot) => {
+            let storageRef = storage.ref("images/" + imageName);
+            storageRef
+                .put(imagePath)
+                .then((snapshot) => {
                     if (snapshot.state === "success") {
-                        snapshot.ref.getDownloadURL().then((url) => {
+                        snapshot.ref
+                            .getDownloadURL()
+                            .then((url) => {
                                 let profileImage = url;
-                                this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage, formType, value);
+                                this._saveDataInFirebase(
+                                    firstName,
+                                    lastName,
+                                    email,
+                                    sex,
+                                    dateOfBirth,
+                                    profileImage,
+                                    formType,
+                                    value
+                                );
                             })
-                            .catch(error => {
+                            .catch((error) => {
                                 this.createErrorMessage(error);
                             });
                     } else {
@@ -813,7 +913,7 @@ class CMS extends HTMLElement {
                         return;
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     this.createErrorMessage(error);
                 });
         } else {
@@ -821,22 +921,45 @@ class CMS extends HTMLElement {
             if (formType === this.formTypes.editEmployee && value) {
                 profileImage = value.profileImage;
             }
-            this._saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage, formType, value);
+            this._saveDataInFirebase(
+                firstName,
+                lastName,
+                email,
+                sex,
+                dateOfBirth,
+                profileImage,
+                formType,
+                value
+            );
         }
-
     }
 
     _editUser(id) {
-        db.collection('employees').doc(id).get().then((querySnapshot) => {
-            let value = querySnapshot.data();
-            value.id = id;
-            this.form = this.createFormSection(this.formTypes.editEmployee, querySnapshot.data());
-            this.firstChild.innerHTML = "";
-            this.firstChild.append(this.form);
-        });
+        db.collection("employees")
+            .doc(id)
+            .get()
+            .then((querySnapshot) => {
+                let value = querySnapshot.data();
+                value.id = id;
+                this.form = this.createFormSection(
+                    this.formTypes.editEmployee,
+                    querySnapshot.data()
+                );
+                this.firstChild.innerHTML = "";
+                this.firstChild.append(this.form);
+            });
     }
 
-    _saveDataInFirebase(firstName, lastName, email, sex, dateOfBirth, profileImage, formType, value) {
+    _saveDataInFirebase(
+        firstName,
+        lastName,
+        email,
+        sex,
+        dateOfBirth,
+        profileImage,
+        formType,
+        value
+    ) {
         const jsonObject = {};
         jsonObject.firstName = firstName;
         jsonObject.lastName = lastName;
@@ -845,7 +968,10 @@ class CMS extends HTMLElement {
         jsonObject.dateOfBirth = dateOfBirth;
         jsonObject.profileImage = profileImage;
         if (formType === this.formTypes.editEmployee && value) {
-            db.collection('employees').doc(value.id).set(jsonObject).then((success) => {
+            db.collection("employees")
+                .doc(value.id)
+                .set(jsonObject)
+                .then((success) => {
                     this.form = this.createFormSection(this.formTypes.addEmployee);
                     this.firstChild.innerHTML = "";
                     this.firstChild.append(this.form);
@@ -854,8 +980,10 @@ class CMS extends HTMLElement {
                     console.log(error);
                 });
         } else {
-            db.collection('employees').add(jsonObject).then((success) => {
-                    console.log('Data uploaded');
+            db.collection("employees")
+                .add(jsonObject)
+                .then((success) => {
+                    console.log("Data uploaded");
                     let dataToRender = {};
                     dataToRender.id = success.id;
                     dataToRender.data = jsonObject;
@@ -863,25 +991,27 @@ class CMS extends HTMLElement {
                     this.table.append(this.createTableRow(dataToRender));
                     this.form.reset();
                 })
-                .catch(error => {
+                .catch((error) => {
                     this.createErrorMessage(error);
                 });
         }
     }
 
-
     _deleteEmployee(id) {
         console.log("Delete employee with id: " + id);
-        db.collection('employees').doc(id).delete().then(() => {
-            console.log("Document successfully deleted!");
-            this.table.removeChild(document.getElementById(id));
-            this.data = this.data.filter(function(obj) {
-                return obj.id !== id;
+        db.collection("employees")
+            .doc(id)
+            .delete()
+            .then(() => {
+                console.log("Document successfully deleted!");
+                this.table.removeChild(document.getElementById(id));
+                this.data = this.data.filter(function(obj) {
+                    return obj.id !== id;
+                });
+            })
+            .catch((error) => {
+                this.createErrorMessage(error);
             });
-
-        }).catch(error => {
-            this.createErrorMessage(error);
-        });
     }
 
     _onMouseInHover(event) {
@@ -907,47 +1037,51 @@ class CMS extends HTMLElement {
         switch (element) {
             case this.elementNames.firstName:
                 {
-                    sortBy = 'firstName';
+                    sortBy = "firstName";
                     this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.lastName:
                 {
-                    sortBy = 'lastName';
+                    sortBy = "lastName";
                     this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.email:
                 {
-                    sortBy = 'email';
+                    sortBy = "email";
                     this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.sex:
                 {
-                    sortBy = 'sex';
+                    sortBy = "sex";
                     this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.dateOfBirth:
                 {
-                    sortBy = 'dateOfBirth';
+                    sortBy = "dateOfBirth";
                     this.sortByFeature.value = sortBy;
                     break;
                 }
             default:
                 {
-                    sortBy = 'firstName';
+                    sortBy = "firstName";
                     this.sortByFeature.value = sortBy;
                 }
         }
         this.sortByFeature.isActive = true;
 
-        let query = this.__createQuerry(this.__createQuerry(this.queryTypes.normal));
-        query.get().then((querySnapshot) => {
+        let query = this.__createQuerry(
+            this.__createQuerry(this.queryTypes.normal)
+        );
+        query
+            .get()
+            .then((querySnapshot) => {
                 this.__handleQuerySnapshot(querySnapshot);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.log(error);
             });
     }
@@ -971,34 +1105,48 @@ class CMS extends HTMLElement {
         }
     }
 
-
     __createQuerry(queryType, param) {
-        let query = db.collection('employees');
+        let query = db.collection("employees");
         if (this.filters.sex.isActive) {
-            query = query.where('sex', "==", this.filters.sex.value);
+            query = query.where("sex", "==", this.filters.sex.value);
         }
         if (this.filters.hasProfilePicture.isActive) {
             if (this.filters.hasProfilePicture.value === "no") {
                 query = query.where("profileImage", "==", defaultImage);
             }
             if (this.filters.hasProfilePicture.value === "has") {
+                query = query.orderBy("profileImage");
                 query = query.where("profileImage", "!=", defaultImage);
-                query = query.orderBy('profileImage');
             }
+        }
+        if (this.filters.dateOfBirth.isActive) {
+            if (!this.sortByFeature.isActive ||
+                (this.sortByFeature.isActive &&
+                    this.sortByFeature.value !== "dateOfBirth")
+            ) {
+                query = query.orderBy("dateOfBirth");
+            }
+            query = query.where(
+                "dateOfBirth",
+                ">=",
+                this.filters.dateOfBirth.value.start
+            );
+            query = query.where(
+                "dateOfBirth",
+                "<=",
+                this.filters.dateOfBirth.value.end
+            );
         }
         if (this.sortByFeature.isActive && this.sortByFeature.value) {
             query = query.orderBy(this.sortByFeature.value);
         } else {
-            query = query.orderBy('lastName');
+            query = query.orderBy("lastName");
         }
         switch (queryType) {
             case this.queryTypes.next:
                 {
-                    if (this.sortByFeature.isActive) {
-                        query = query.orderBy(this.sortByFeature.value);
-                    }
                     if (!param) {
-                        console.error("There is no parameter!")
+                        console.error("There is no parameter!");
                         return;
                     }
                     query = query.startAfter(param);
@@ -1008,7 +1156,7 @@ class CMS extends HTMLElement {
             case this.queryTypes.prev:
                 {
                     if (!param) {
-                        console.error("There is no parameter!")
+                        console.error("There is no parameter!");
                         return;
                     }
                     query = query.endBefore(param);
@@ -1023,7 +1171,7 @@ class CMS extends HTMLElement {
             case this.queryTypes.nextChecker:
                 {
                     if (!param) {
-                        console.error("There is no parameter!")
+                        console.error("There is no parameter!");
                         return;
                     }
                     query = query.startAfter(param);
@@ -1042,8 +1190,6 @@ class CMS extends HTMLElement {
         }
         return query;
     }
-
 }
-
 
 window.customElements.define("cms-component", CMS);
