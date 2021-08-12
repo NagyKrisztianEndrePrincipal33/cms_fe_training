@@ -60,7 +60,7 @@ class CMS extends HTMLElement {
         this.nextButton = null;
         this.prevButton = null;
         this.next = null;
-        this.queryLimit = 4;
+        this.queryLimit = 5;
         this.previous = null;
         this.filters = {
             keyword: {
@@ -89,8 +89,14 @@ class CMS extends HTMLElement {
             next: "next",
             prev: "prev",
             nextChecker: "nextChecker",
+            sortBy: "sortBy",
         }
         this.pageCounter = 0;
+        this.sortByFeature = {
+            isActive: false,
+            value: null,
+        }
+
     }
 
     connectedCallback() {
@@ -398,12 +404,16 @@ class CMS extends HTMLElement {
         if (tempData.length < this.queryLimit) {
             this.nextButton.disabled = true;
         }
+        console.log(tempData);
         this.__actualizeNext(querySnapshot);
         this.__checkIfThereIsMoreData().then((thereIsMore) => {
-            this.nextButton.disabled = !thereIsMore;
-            this.__actualizePrev(querySnapshot);
-            this._reRender(tempData);
-        });
+                this.nextButton.disabled = !thereIsMore;
+                this.__actualizePrev(querySnapshot);
+                this._reRender(tempData);
+            })
+            .catch(error => {
+                console.log("Error in handling: " + error);
+            });
     }
 
     _createPaginationButton() {
@@ -442,6 +452,12 @@ class CMS extends HTMLElement {
                 });
         };
         this.nextButton = nextPage;
+        this.__checkIfThereIsMoreData().then((thereIsMore) => {
+                this.nextButton.disabled = !thereIsMore;
+            })
+            .catch(error => {
+                console.log(error);
+            });
         const prevPage = document.createElement('button');
         prevPage.classList.add('pagination-button');
         prevPage.classList.add("pagination-next-page-button")
@@ -784,6 +800,7 @@ class CMS extends HTMLElement {
                 dataToRender.data = jsonObject;
                 this.data.push(dataToRender);
                 this.table.append(this.createTableRow(dataToRender));
+                this.form.reset();
             })
             .catch(error => {
                 this.createErrorMessage(error);
@@ -829,40 +846,53 @@ class CMS extends HTMLElement {
             case this.elementNames.firstName:
                 {
                     sortBy = 'firstName';
+                    this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.lastName:
                 {
                     sortBy = 'lastName';
+                    this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.email:
                 {
                     sortBy = 'email';
+                    this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.sex:
                 {
                     sortBy = 'sex';
+                    this.sortByFeature.value = sortBy;
                     break;
                 }
             case this.elementNames.dateOfBirth:
                 {
                     sortBy = 'dateOfBirth';
+                    this.sortByFeature.value = sortBy;
                     break;
                 }
             default:
                 {
                     sortBy = 'firstName';
+                    this.sortByFeature.value = sortBy;
                 }
         }
+        this.sortByFeature.isActive = true;
 
-        this.data.sort((a, b) => {
-            let firstValue = a.data[sortBy];
-            let secondValue = b.data[sortBy];
-            return firstValue.localeCompare(secondValue);
-        });
-        this._reRender();
+        // this.data.sort((a, b) => {
+        //     let firstValue = a.data[sortBy];
+        //     let secondValue = b.data[sortBy];
+        //     return firstValue.localeCompare(secondValue);
+        // });
+        let query = this.__createQuerry(this.__createQuerry(this.queryTypes.normal));
+        query.get().then((querySnapshot) => {
+                this.__handleQuerySnapshot(querySnapshot);
+            })
+            .catch(error => {
+                console.log(error);
+            });
     }
 
     _reRender(preData) {
@@ -899,10 +929,17 @@ class CMS extends HTMLElement {
                 query = query.orderBy('profileImage');
             }
         }
-        query = query.orderBy('lastName');
+        if (this.sortByFeature.isActive && this.sortByFeature.value) {
+            query = query.orderBy(this.sortByFeature.value);
+        } else {
+            query = query.orderBy('lastName');
+        }
         switch (queryType) {
             case this.queryTypes.next:
                 {
+                    if (this.sortByFeature.isActive) {
+                        query = query.orderBy(this.sortByFeature.value);
+                    }
                     if (!param) {
                         console.error("There is no parameter!")
                         return;
@@ -934,6 +971,15 @@ class CMS extends HTMLElement {
                     }
                     query = query.startAfter(param);
                     query = query.limit(1);
+                    break;
+                }
+            case this.queryTypes.sortBy:
+                {
+                    if (!this.sortByFeature.isActive || this.sortByFeature.value === null) {
+                        console.error("SortBy is not active");
+                        return;
+                    }
+                    query = query.limit(this.queryLimit);
                     break;
                 }
         }
