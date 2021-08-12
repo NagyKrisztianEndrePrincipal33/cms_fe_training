@@ -60,7 +60,7 @@ class CMS extends HTMLElement {
         this.nextButton = null;
         this.prevButton = null;
         this.next = null;
-        this.queryLimit = 5;
+        this.queryLimit = 3;
         this.previous = null;
         this.filters = {
             keyword: {
@@ -100,6 +100,7 @@ class CMS extends HTMLElement {
             addEmployee: "addEmployee",
             editEmployee: "editEmployee",
         };
+        this.backupElement = null;
     }
 
     connectedCallback() {
@@ -409,9 +410,7 @@ class CMS extends HTMLElement {
             this.queryTypes.nextChecker,
             this.lastVisible
         );
-        console.log("Checking");
-        return query
-            .get()
+        return query.get()
             .then((querySnapshot) => {
                 let tempData = [];
                 querySnapshot.forEach((doc) => {
@@ -423,6 +422,8 @@ class CMS extends HTMLElement {
                 let thereIsMore = true;
                 if (tempData.length === 0) {
                     thereIsMore = false;
+                } else {
+                    this.backupElement = querySnapshot.docs[querySnapshot.docs.length - 1];
                 }
                 return thereIsMore;
             })
@@ -537,7 +538,12 @@ class CMS extends HTMLElement {
     }
 
     __actualizeNext(data) {
-        this.lastVisible = data.docs[data.docs.length - 1];
+        if (data) {
+            this.lastVisible = data.docs[data.docs.length - 1];
+        }
+        if (!this.lastVisible) {
+            console.error("Error: this.lastVisible is undifined!");
+        }
         this.next = this.__createQuerry(this.queryTypes.next, this.lastVisible);
     }
 
@@ -907,6 +913,7 @@ class CMS extends HTMLElement {
                             })
                             .catch((error) => {
                                 this.createErrorMessage(error);
+                                console.log(error);
                             });
                     } else {
                         this.createErrorMessage("Something went wrong at image uploading!");
@@ -915,6 +922,7 @@ class CMS extends HTMLElement {
                 })
                 .catch((error) => {
                     this.createErrorMessage(error);
+                    console.log(error);
                 });
         } else {
             let profileImage = defaultImage;
@@ -993,6 +1001,7 @@ class CMS extends HTMLElement {
                 })
                 .catch((error) => {
                     this.createErrorMessage(error);
+                    console.log(error);
                 });
         }
     }
@@ -1005,12 +1014,30 @@ class CMS extends HTMLElement {
             .then(() => {
                 console.log("Document successfully deleted!");
                 this.table.removeChild(document.getElementById(id));
+                if (this.backupElement) {
+                    let extraData = {};
+                    extraData.id = this.backupElement.id;
+                    extraData.data = this.backupElement.data();
+                    this.lastVisible = this.backupElement;
+                    this.__checkIfThereIsMoreData().then(thereIsMore => {
+                            if (!thereIsMore) {
+                                this.nextButton.disabled = true;
+                            }
+                            this.__actualizeNext();
+                            this.table.append(this.createTableRow(extraData));
+
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        })
+                }
                 this.data = this.data.filter(function(obj) {
                     return obj.id !== id;
                 });
             })
             .catch((error) => {
                 this.createErrorMessage(error);
+                console.log(error);
             });
     }
 
