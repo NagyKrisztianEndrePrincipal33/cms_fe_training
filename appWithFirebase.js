@@ -740,6 +740,19 @@ class CMS extends HTMLElement {
         const submit = document.createElement("input");
         submit.type = "submit";
         form.onsubmit = (event) => this.saveDataOnClickSubmit(event, formType, value);
+        if (formType === this.formTypes.editEmployee) {
+            const cancel = document.createElement('button');
+            cancel.classList.add('edit-employee-cancel-button');
+            cancel.innerText = "Cancel";
+            cancel.onclick = (event) => {
+                event.preventDefault();
+                this.form = this.createFormSection(this.formTypes.addEmployee);
+                this.firstChild.innerHTML = "";
+                this.firstChild.append(this.form);
+            };
+            div.classList.add("cancel-subbmit-buttons");
+            div.append(cancel);
+        }
         div.append(submit);
         form.append(div);
         return form;
@@ -930,11 +943,6 @@ class CMS extends HTMLElement {
         }
         this.sortByFeature.isActive = true;
 
-        // this.data.sort((a, b) => {
-        //     let firstValue = a.data[sortBy];
-        //     let secondValue = b.data[sortBy];
-        //     return firstValue.localeCompare(secondValue);
-        // });
         let query = this.__createQuerry(this.__createQuerry(this.queryTypes.normal));
         query.get().then((querySnapshot) => {
                 this.__handleQuerySnapshot(querySnapshot);

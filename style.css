@@ -271,6 +271,21 @@ cms-component .styled-form {
     width: 60%;
 }
 
+.cancel-subbmit-buttons {
+    display: grid !important;
+    gap: 10px;
+    grid-template-columns: 3fr 1fr;
+}
+
+.edit-employee-cancel-button {
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 5px 0;
+    border-radius: 25px;
+    border: none;
+    color: red;
+}
+
 @media only screen and (max-width: 1000px) {
     cms-component {
         display: flex;
