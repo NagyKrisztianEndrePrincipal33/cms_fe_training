@@ -180,32 +180,35 @@ class CMS extends HTMLElement {
                 this.filters.keyword.isActive = false;
                 this.filters.keyword.value = null;
             }
-            db.collection("employees")
-                .get()
-                .then((querySnapshot) => {
-                    let tempData = [];
-                    querySnapshot.forEach((doc) => {
-                        let temp = {};
-                        temp.id = doc.id;
-                        temp.data = doc.data();
-                        tempData.push(temp);
-                    });
-                    let filteredData = [];
-                    for (let x of tempData) {
-                        let tempText = x.data;
-                        if (
-                            tempText.email.includes(searchByKeyWordInput.value) ||
-                            tempText.firstName.includes(searchByKeyWordInput.value) ||
-                            tempText.lastName.includes(searchByKeyWordInput.value)
-                        ) {
-                            filteredData.push(x);
+            if (this.filters.keyword.isActive) {
+                let query = this.__createQuerry(this.queryTypes.normal);
+                query.get().then((querySnapshot) => {
+                        let tempData = [];
+                        querySnapshot.forEach((doc) => {
+                            let temp = {};
+                            temp.id = doc.id;
+                            temp.data = doc.data();
+                            tempData.push(temp);
+                        });
+                        let filteredData = [];
+                        for (let x of tempData) {
+                            let tempText = x.data;
+                            if (
+                                tempText.email.includes(searchByKeyWordInput.value) ||
+                                tempText.firstName.includes(searchByKeyWordInput.value) ||
+                                tempText.lastName.includes(searchByKeyWordInput.value)
+                            ) {
+                                filteredData.push(x);
+                            }
                         }
-                    }
-                    this._reRender(filteredData);
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
+                        this.nextButton.disabled = true;
+                        this.prevButton.disabled = true;
+                        this._reRender(filteredData);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    })
+            }
         });
         filtersContainer.append(labelForKeyword, searchByKeyWordInput);
         const labelForSex = document.createElement("label");
@@ -235,6 +238,8 @@ class CMS extends HTMLElement {
                         if (this.filters.sex.isActive) {
                             this.filters.sex.isActive = false;
                             this.filters.sex.value = null;
+                            this.filters.keyword.isActive = false;
+                            searchByKeyWordInput.value = "";
                         }
                         break;
                     }
@@ -242,6 +247,8 @@ class CMS extends HTMLElement {
                     {
                         if (!this.filters.sex.isActive) {
                             this.filters.sex.isActive = true;
+                            this.filters.keyword.isActive = false;
+                            searchByKeyWordInput.value = "";
                         }
                         this.filters.sex.value = "Female";
                         break;
@@ -250,6 +257,8 @@ class CMS extends HTMLElement {
                     {
                         if (!this.filters.sex.isActive) {
                             this.filters.sex.isActive = true;
+                            this.filters.keyword.isActive = false;
+                            searchByKeyWordInput.value = "";
                         }
                         this.filters.sex.value = "Male";
                         break;
@@ -292,6 +301,8 @@ class CMS extends HTMLElement {
                     {
                         this.filters.hasProfilePicture.isActive = false;
                         this.filters.hasProfilePicture.value = null;
+                        this.filters.keyword.isActive = false;
+                        searchByKeyWordInput.value = "";
                         break;
                     }
                 case "has":
@@ -300,6 +311,8 @@ class CMS extends HTMLElement {
                             this.filters.hasProfilePicture.isActive = true;
                         }
                         this.filters.hasProfilePicture.value = hasProfilePicture.value;
+                        this.filters.keyword.isActive = false;
+                        searchByKeyWordInput.value = "";
                         break;
                     }
                 case "no":
@@ -308,6 +321,8 @@ class CMS extends HTMLElement {
                             this.filters.hasProfilePicture.isActive = true;
                         }
                         this.filters.hasProfilePicture.value = hasProfilePicture.value;
+                        this.filters.keyword.isActive = false;
+                        searchByKeyWordInput.value = "";
                         break;
                     }
             }
@@ -336,6 +351,8 @@ class CMS extends HTMLElement {
             this.filters.dateOfBirth.value.start = startDate.value;
             if (this.filters.dateOfBirth.value.end) {
                 this.filters.dateOfBirth.isActive = true;
+                this.filters.keyword.isActive = false;
+                searchByKeyWordInput.value = "";
                 let query = this.__createQuerry(this.queryTypes.normal);
                 query
                     .get()
@@ -350,6 +367,8 @@ class CMS extends HTMLElement {
         endDate.onchange = () => {
             startDate.max = endDate.value;
             this.filters.dateOfBirth.value.end = endDate.value;
+            this.filters.keyword.isActive = false;
+            searchByKeyWordInput.value = "";
             if (this.filters.dateOfBirth.value.start) {
                 this.filters.dateOfBirth.isActive = true;
                 let query = this.__createQuerry(this.queryTypes.normal);
@@ -380,6 +399,8 @@ class CMS extends HTMLElement {
             startDate.max = moment();
             endDate.value = "";
             endDate.min = "";
+            this.filters.keyword.isActive = false;
+            searchByKeyWordInput.value = "";
             let query = this.__createQuerry(this.queryTypes.normal);
             query
                 .get()
