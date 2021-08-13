@@ -524,8 +524,16 @@ class CMS extends HTMLElement {
                         this.data.push(temp);
                     });
                     this.__actualizeNext(querySnapshot);
-                    this.__actualizePrev(querySnapshot);
-                    this._reRender();
+                    this.__checkIfThereIsMoreData().then((isThereMore) => {
+                            if (!isThereMore) {
+                                this.nextButton.disabled = !isThereMore;
+                            }
+                            this.__actualizePrev(querySnapshot);
+                            this._reRender();
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        });
                 })
                 .catch((error) => {
                     console.log(error);
